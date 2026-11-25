@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: enterpriseos
+      POSTGRES_USER: enterpriseos
+      POSTGRES_PASSWORD: enterpriseos
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+  app:
+    build: .
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgres://enterpriseos:enterpriseos@postgres:5432/enterpriseos
+      JWT_SECRET: change-me-for-production-please-use-a-long-random-value
+    ports: ["4000:4000"]
+    depends_on: [postgres]
+volumes:
+  postgres_data:

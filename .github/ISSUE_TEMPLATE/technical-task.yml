@@ -1,0 +1,16 @@
+name: Technical task
+description: Track engineering, quality, infrastructure, or documentation work.
+title: "chore: "
+labels: [technical-task]
+body:
+  - type: textarea
+    attributes: { label: Context }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Scope }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Definition of done }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Risks or dependencies }

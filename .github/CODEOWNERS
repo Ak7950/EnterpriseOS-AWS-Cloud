@@ -1,0 +1,5 @@
+# Replace these placeholders with the team's real GitHub usernames before enabling required reviews.
+/server/ @BACKEND_USERNAME
+/public/ @FRONTEND_USERNAME
+/.github/ @DEVOPS_USERNAME
+/docs/ @DEVOPS_USERNAME

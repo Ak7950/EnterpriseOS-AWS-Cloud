@@ -1,0 +1,16 @@
+name: Bug report
+description: Report reproducible incorrect behavior.
+title: "fix: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes: { label: Steps to reproduce }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Expected behavior }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Actual behavior }
+    validations: { required: true }
+  - type: input
+    attributes: { label: Environment, placeholder: "Browser, OS, Node version" }

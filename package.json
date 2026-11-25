@@ -1,0 +1,23 @@
+{
+  "name": "enterpriseos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server/index.js",
+    "start": "node server/index.js",
+    "test": "node --test",
+    "db:migrate": "node server/migrate.js",
+    "db:seed-demo": "node server/seed-demo.js",
+    "db:bootstrap-admin": "node server/bootstrap-admin.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "pg-mem": "^3.0.14"
+  }
+}
