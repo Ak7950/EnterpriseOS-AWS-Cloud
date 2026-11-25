@@ -5,7 +5,14 @@ const { Pool } = pg;
 export const isInMemory = !process.env.DATABASE_URL;
 const memory = isInMemory;
 
-if (memory && process.env.NODE_ENV === 'production') {
+// DEMO_EPHEMERAL_DATABASE=true is an explicit, opt-in exception used only for
+// short-lived cloud demonstrations (e.g. an AWS Academy Lambda stack with no
+// external database). Data lives in the function container's memory and is lost
+// on every cold start. It must never be used for real records.
+export const ephemeralDemo = memory && process.env.DEMO_EPHEMERAL_DATABASE === 'true';
+export const databaseMode = memory ? 'ephemeral-in-memory' : 'postgresql';
+
+if (memory && process.env.NODE_ENV === 'production' && !ephemeralDemo) {
   throw new Error('DATABASE_URL is required in production. Refusing to use the in-memory database.');
 }
 const db = memory ? newDb({ autoCreateForeignKeyIndices: true }) : null;
@@ -13,6 +20,15 @@ if (memory) db.public.registerFunction({ name: 'gen_random_uuid', returns: DataT
 export const pool = memory ? newDbPool(db) : new Pool({ connectionString: process.env.DATABASE_URL });
 function newDbPool(instance) { return new (instance.adapters.createPg().Pool)(); }
 export const q = (text, params = []) => pool.query(text, params);
+
+export async function checkDatabase() {
+  try {
+    await q('SELECT 1');
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function migrate() {
   if (!memory) await q(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
