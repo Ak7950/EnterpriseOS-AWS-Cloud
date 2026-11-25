@@ -31,6 +31,7 @@ Other validation:
 | `npm audit` / `npm audit --omit=dev` | 0 vulnerabilities |
 | `cfn-lint infrastructure/template.yaml` (v1.61.0) | 0 errors, 0 warnings |
 | `shellcheck scripts/*.sh scripts/aws/*.sh` | 0 findings |
+| `actionlint .github/workflows/*.yml` (v1.7.12) | 0 findings |
 | `npm run package:lambda` | 2,008 files, 12.4 MiB unzipped, production dependencies only |
 | `npm run smoke:lambda` (built artifact) | `/health` 200, UI 200, login 200, worker contract OK |
 | `bash scripts/check-secrets.sh` | passed; a planted fake AWS key and credentialed DB URL were detected (canary test), then removed |
