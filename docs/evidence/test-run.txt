@@ -1,0 +1,70 @@
+# Captured 2026-11-25T10:03Z on macOS, Node v24.13.0, npm 11.6.2
+# Command: npm test
+
+> enterpriseos@1.0.0 test
+> node --test
+
+✔ manager cannot assign a task to a user in another organization (40.933916ms)
+✔ manager employee view is limited to their direct reports (17.560666ms)
+✔ attendance clock-in, dashboard count, and clock-out use the India-local work date (37.105833ms)
+✔ an admin cannot create a super-admin account (2.5185ms)
+✔ new employees receive a unique one-time password and must change it before using the API (2101.160375ms)
+✔ local SPA assets are served and unknown API routes return JSON (13.558125ms)
+✔ creates a signed JWT with the expected tenant claims (9.464ms)
+✔ rejects token generation when JWT_SECRET is missing (0.500959ms)
+✔ rejects a JWT_SECRET shorter than 32 characters (0.162ms)
+✔ rejects the known development secret in production (0.143084ms)
+✔ authenticates a valid bearer token (1.076333ms)
+✔ rejects requests without an authorization token (0.157375ms)
+✔ rejects an invalid bearer token (0.326083ms)
+✔ allows only users with permitted roles (0.143291ms)
+✔ rejects users without a permitted role (0.14425ms)
+✔ creates a forced-password-change production administrator and prints the credential once (999.03825ms)
+✔ refuses bootstrap when an administrator already exists (1.217916ms)
+✔ requires explicit PostgreSQL and administrator configuration before connecting (0.194833ms)
+✔ production still refuses the in-memory database unless the demo flag is explicit (608.73675ms)
+✔ a configured DATABASE_URL always wins over the demo flag (145.926875ms)
+✔ local health endpoint is public, reports status, and returns a request id (192.861583ms)
+✔ demo seed IDs are deterministic, valid v4-format UUIDs (consistent across Lambda containers) (0.546708ms)
+✔ bridge maps a v2 event to a loopback request and overwrites X-Forwarded-For (1.917958ms)
+✔ bridge drops a spoofed X-Forwarded-For when AWS supplies no source IP (0.178125ms)
+✔ bridge returns text as UTF-8, binary as base64 and cookies separately (1.2375ms)
+✔ parameter loader copies only allow-listed names and never overwrites env (0.310667ms)
+✔ parameter loader is a no-op without SSM_PARAMETER_PATH and rejects bad paths (0.577625ms)
+✔ publishEvent validates types and never throws when the transport fails (2.15675ms)
+✔ publishEvent is disabled by default (local development unaffected) (0.112625ms)
+✔ sqs transport without a queue URL fails safely (0.12625ms)
+✔ worker processes valid events, fans out to SNS and reports only failures (0.480166ms)
+✔ worker retries a message when SNS publishing fails (0.222542ms)
+✔ parseEvent enforces the event contract (0.226083ms)
+✔ logger writes single-line JSON and respects LOG_LEVEL (0.133459ms)
+✔ template avoids paid always-on infrastructure (0.923917ms)
+✔ no IAM Allow statement grants wildcard actions or wildcard resources (0.309292ms)
+✔ secrets are never placed in Lambda environment variables (1.268ms)
+✔ every log group has a short retention period (0.1355ms)
+✔ queues are encrypted, TLS-only and have a dead-letter queue (0.140375ms)
+✔ public entry point is throttled and the worker reports partial batch failures (0.697167ms)
+✔ optional billed features are off by default and Academy-compatible defaults are set (0.122458ms)
+✔ GitHub workflows never deploy automatically and hold no inline credentials (7.544333ms)
+✔ health check reports the ephemeral demo database and sends no-store (1092.894667ms)
+✔ serves the static frontend with security headers through the bridge (8.719042ms)
+✔ same-origin login works and the token authorises API calls (449.6065ms)
+✔ cross-origin requests from unknown origins are rejected (1.469208ms)
+✔ API routes still require authentication (0.774916ms)
+✔ login rate limiting is per client IP and cannot be bypassed with X-Forwarded-For (2419.257125ms)
+✔ a manager decision publishes a LEAVE_DECIDED domain event (416.054959ms)
+✔ a manager can move a task in their own project (pre-existing pg-mem defect regression) (412.360041ms)
+✔ a manager cannot decide leave for an employee outside their team (814.047875ms)
+✔ invalid bearer tokens are rejected through the bridge (0.734208ms)
+✔ appendOrigin de-duplicates and preserves configured origins (0.105667ms)
+✔ in-memory development startup initializes schema and demo data in the application process (704.142167ms)
+✔ uses the Indian date when UTC is still on the previous day (65.961666ms)
+✔ correctly handles midnight in India (0.359333ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10788.772625

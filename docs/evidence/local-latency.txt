@@ -1,0 +1,8 @@
+# Local Lambda-handler latency (macOS, Node v24.13.0, 2026-11-25), 3 runs
+# cold = module import + SSM skip + ephemeral schema/seed + loopback server + first /health
+# warm = one /api/me request through the bridge
+200 401 cold=812ms warm=1.0ms
+200 401 cold=746ms warm=1.0ms
+200 401 cold=739ms warm=1.0ms
+# Same run without CORS_INCLUDE_API_ORIGIN: handler returned 503 SERVICE_UNAVAILABLE and logged
+# cold_start_failed "CORS_ORIGIN or Vercel deployment URLs are required in production." (fail-safe)

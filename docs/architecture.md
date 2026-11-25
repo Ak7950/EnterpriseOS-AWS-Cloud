@@ -1,70 +1,170 @@
-# System Architecture
+# Architecture
 
-## Overview
+> **Deployment status (2026-11-25): nothing in this repository has been deployed to AWS yet.**
+> Every AWS component below is *Implemented Locally*: the code exists, is covered by
+> automated tests, and the CloudFormation/SAM template passes `cfn-lint`. It becomes
+> *Implemented and Deployed* only after the AWS Academy checks in
+> [`aws-academy-environment-audit.md`](aws-academy-environment-audit.md) pass and evidence is
+> added to [`evidence/`](evidence/).
 
-EnterpriseOS is implemented as a modular monolith. The browser client is built with native HTML, CSS, and JavaScript. It sends JSON requests to an Express application. On Vercel, the root index.js exports the Express application as the serverless entry point; locally, server/index.js can start the same application as a Node process.
+## 1. Starting point (original EnterpriseOS)
 
-The persistent deployment uses PostgreSQL through the pg package. Neon hosts the managed PostgreSQL database. If DATABASE_URL is absent in local development, server/db.js creates an in-memory pg-mem database.
+EnterpriseOS is a multi-tenant workforce-management system: employees, departments,
+projects, a task board, attendance (India time zone), leave approvals, performance
+reviews, notifications, dashboards and an audit trail.
 
-## Deployment architecture
+| Layer | Technology (verified from the code) |
+|---|---|
+| Frontend | Vanilla HTML/CSS/JS single-page app in `public/`, served by Express, token kept in `sessionStorage` |
+| Backend | Node.js (ES modules) + Express 4, all routes in `server/index.js` |
+| Auth | JWT (HS256, 8 h) via `jsonwebtoken`, bcrypt (12 rounds) passwords, role checks `SUPER_ADMIN / ADMIN / MANAGER / EMPLOYEE`, forced first-login password change |
+| Data | PostgreSQL via `pg`; schema in `server/db.js#migrate()`; `pg-mem` in-memory database when `DATABASE_URL` is empty (development/tests) |
+| Tenancy | Every query is scoped by `organization_id` from the JWT |
+| Original hosting | Vercel serverless function (`index.js`) + Neon PostgreSQL — **not used or modified by this project** |
 
-~~~mermaid
-flowchart TD
-    Visitor[User browser]
-    CDN[Vercel static asset delivery]
-    Entry[Root index.js - Express export]
-    App[server/index.js - Express application]
-    Middleware[CORS, security headers, JSON body limit]
-    Auth[JWT verification and role authorization]
-    Routes[Workforce and delivery API routes]
-    Neon[(Neon PostgreSQL)]
-    Memory[(pg-mem - local development only)]
+## 2. Diagram A — what runs today (verified locally)
 
-    Visitor --> CDN
-    Visitor -->|/api/*| Entry
-    Entry --> App --> Middleware --> Auth --> Routes --> Neon
-    Routes -. local development .-> Memory
-~~~
+Solid lines = verified running (local machine / CI). This is **not** an AWS deployment.
 
-The deployment remains one application rather than independently deployed frontend and backend services. Vercel serves the browser assets and runs the Express application handler. Neon is the separate managed database service.
+```mermaid
+flowchart LR
+  B[Browser SPA<br/>public/] -->|HTTPS in prod / HTTP locally| E[Express app<br/>server/index.js]
+  E -->|pg| M[(pg-mem in-memory DB<br/>or local PostgreSQL)]
+  T[node --test<br/>56 tests] -->|Lambda v2 events| H[Lambda handler<br/>aws/lambda/api-handler.js]
+  H -->|loopback 127.0.0.1| E
+  E -->|EVENT_TRANSPORT=memory| Q[(in-memory event list)]
+  T -->|SQS-shaped records| W[Event worker<br/>aws/lambda/event-worker.js]
+```
 
-## Application layers
+## 3. Diagram B — AWS target architecture (implemented, **not deployed**)
 
-| Layer | Location | Responsibility |
-| --- | --- | --- |
-| Browser interface | public/index.html, public/styles.css, public/app.js | Login, dashboard, forms, navigation, task board, and API calls. |
-| Application entry | index.js | Default-exports the Express application for Vercel. |
-| HTTP application | server/index.js | Middleware, routes, input checks, authorization, notifications, and audit records. |
-| Authentication | server/auth.js | JWT signing/verification, bcrypt password hashing, and role middleware. |
-| Database | server/db.js | PostgreSQL pool or local pg-mem pool, schema creation, and query helper. |
-| Date helper | server/time.js | India-local date conversion utility and regression-test target. |
-| Database operations | server/migrate.js, server/seed-demo.js, server/bootstrap-admin.js | Explicit migration, local demo seed, and first-administrator bootstrap. |
-| Verification | test/ | Node built-in test-runner tests. |
+```mermaid
+flowchart LR
+  subgraph Internet
+    U[Employee / Manager / Admin<br/>browser]
+  end
+  subgraph AWS["AWS account (us-east-1) — infrastructure/template.yaml"]
+    APIGW[Amazon API Gateway<br/>HTTP API $default stage<br/>throttle 10 rps / burst 20]
+    FURL[Lambda Function URL<br/>fallback front door]
+    API[AWS Lambda: enterpriseos-dev-api<br/>Express via loopback bridge<br/>Node.js 24, 512 MB]
+    SSM[(SSM Parameter Store<br/>SecureString JWT_SECRET<br/>optional DATABASE_URL)]
+    SQS[[Amazon SQS events queue<br/>SSE, TLS-only]]
+    DLQ[[SQS dead-letter queue<br/>after 3 receives]]
+    WRK[AWS Lambda: enterpriseos-dev-worker<br/>partial batch failures]
+    SNS((Amazon SNS<br/>notifications topic))
+    CWL[CloudWatch Logs<br/>JSON logs, 7-day retention]
+    CWA[CloudWatch alarms<br/>errors, 5xx, DLQ depth]
+    OPS((SNS ops-alerts topic))
+  end
+  subgraph Future["Proposed — not implemented"]
+    PG[(Managed PostgreSQL<br/>RDS / Aurora / external)]
+    CF[CloudFront + S3 static site]
+    DDB[(DynamoDB rate-limit store)]
+  end
 
-## Request lifecycle
+  U -.->|HTTPS| APIGW
+  U -.->|HTTPS, if API GW unavailable| FURL
+  APIGW -.->|AWS_PROXY payload v2| API
+  FURL -.-> API
+  API -.->|cold start: GetParametersByPath| SSM
+  API -.->|SendMessage LEAVE_DECIDED / TASK_ASSIGNED| SQS
+  SQS -.->|event source mapping| WRK
+  SQS -.->|redrive| DLQ
+  WRK -.->|Publish PII-free summary| SNS
+  API -.-> CWL
+  WRK -.-> CWL
+  CWA -.-> OPS
+  API -.->|DatabaseMode=postgresql| PG
+  U -.-> CF
+  API -.-> DDB
 
-1. The browser loads the static interface and sends a request to an API route.
-2. Express applies security headers, CORS policy, and a JSON request-size limit.
-3. The login route validates credentials and issues an eight-hour JWT.
-4. Protected routes pass through bearer-token verification.
-5. Role checks and organization-scoped SQL queries control access to records.
-6. State-changing operations write application data and, where applicable, audit and notification records.
-7. The API returns a structured JSON response.
+  classDef impl fill:#e8f1ff,stroke:#2b6cb0,color:#1a365d;
+  classDef future fill:#f4f4f4,stroke:#9e9e9e,color:#555,stroke-dasharray:4 4;
+  class APIGW,FURL,API,SSM,SQS,DLQ,WRK,SNS,CWL,CWA,OPS impl;
+  class PG,CF,DDB future;
+  linkStyle 12,13,14 stroke:#9e9e9e,stroke-dasharray:2 6;
+```
 
-## Tenant model
+**Legend.** Solid line = deployed and verified (none yet). Blue node with dashed line =
+implemented and tested locally, ready to deploy. Grey dotted node/line = proposed future
+work (designed only). When a deployment is verified, the corresponding lines will be
+changed to solid and the evidence linked.
 
-An organization is the tenant boundary. Workforce tables store an organization identifier. Authenticated request handlers use the organization claim from the verified JWT rather than accepting an organization identifier from the browser as the authority for access decisions.
+## 4. Request flow (HTTP)
 
-Manager access is further restricted to their direct reports or projects they manage where the relevant route applies. Task creation validates that the selected project and assignee belong to the requester's organization.
+1. The browser calls `https://<api-id>.execute-api.us-east-1.amazonaws.com/...` (or the
+   Function URL). TLS terminates at AWS.
+2. API Gateway applies stage throttling and forwards a **payload v2.0** event to the API
+   Lambda (`AWS_PROXY` integration).
+3. **Cold start only** (`aws/lambda/api-handler.js`):
+   1. `config-loader.js` reads allow-listed SecureStrings (`JWT_SECRET`, `DATABASE_URL`,
+      `CORS_ORIGIN`) from `SSM_PARAMETER_PATH` — before the app module is imported,
+      because the app validates its secrets at import time.
+   2. The API's own origin (`https://` + `requestContext.domainName`, set by AWS) is added
+      to the CORS allow-list so same-origin browser POSTs pass.
+   3. The **unchanged** Express app is imported; in ephemeral-demo mode the schema and
+      synthetic data are created in memory.
+   4. The app listens on an ephemeral **127.0.0.1** port inside the sandbox.
+4. `http-bridge.js` replays the event as a real HTTP request to that port, overwriting
+   `X-Forwarded-For` with the AWS-verified `sourceIp`, then converts the response back
+   (text vs base64, `Set-Cookie` → `cookies`).
+5. Express runs exactly the same middleware as locally: security headers, CORS, 100 kB
+   JSON limit, JWT auth, forced password change, role checks, tenant-scoped SQL.
 
-## Local and hosted lifecycle
+Why a loopback bridge instead of a library such as `serverless-http`? It adds **no
+dependency**, it exercises the real Node HTTP stack (so behaviour is identical to local
+runs and to the existing tests), and it works unchanged for API Gateway and Function URLs.
+The cost is ~1 ms of loopback overhead per request.
 
-- Local in-memory mode initializes the pg-mem schema and development seed data in the application process before the local server starts.
-- Persistent PostgreSQL schema changes are applied explicitly with npm run db:migrate.
-- Demo data is added explicitly with npm run db:seed-demo, which refuses to run when NODE_ENV is production.
-- First administrator creation is explicit through npm run db:bootstrap-admin; the script refuses to create another administrator in an organization that already has one.
-- Vercel requests and serverless cold starts do not run database migrations or demo seeding.
+## 5. Event-driven flow (asynchronous)
 
-## Design trade-offs
+```mermaid
+sequenceDiagram
+  participant M as Manager (browser)
+  participant A as API Lambda
+  participant DB as Database
+  participant Q as SQS events
+  participant W as Worker Lambda
+  participant N as SNS topic
+  M->>A: PUT /api/leaves/:id/decision {APPROVED}
+  A->>DB: UPDATE leave_requests (tenant + team scoped)
+  A->>DB: INSERT notifications, audit_logs (unchanged behaviour)
+  A->>Q: SendMessage LEAVE_DECIDED v1 (ids only, no names/emails)
+  A-->>M: 200 OK
+  Q->>W: batch of ≤10 records
+  W->>W: validate contract, structured log
+  W->>N: Publish "Leave request <id> was approved."
+  W-->>Q: batchItemFailures (only failed ids retried)
+  Note over Q: after 3 failed receives → dead-letter queue → CloudWatch alarm
+```
 
-The modular-monolith approach keeps deployment and local setup straightforward. The browser-native frontend avoids a separate frontend build pipeline. The trade-off is that the application does not currently include a dedicated mobile app, a distributed rate limiter, a shared schema-validation framework, or a browser end-to-end test suite.
+* The synchronous notification/audit rows are still written exactly as before, so the
+  product works even when `EVENT_TRANSPORT=none` (the local default).
+* Publishing never fails a user request: errors are logged (`domain_event_publish_failed`).
+* Event contract: `{ id, type, version: 1, occurredAt, organizationId, actorId, data }`.
+
+## 6. Configuration and data modes
+
+| Variable | Local default | AWS stack |
+|---|---|---|
+| `DATABASE_URL` | empty → pg-mem | from SSM when `DatabaseMode=postgresql` |
+| `DEMO_EPHEMERAL_DATABASE` | unset | `true` when `DatabaseMode=ephemeral-demo` |
+| `JWT_SECRET` | `.env` | SSM SecureString |
+| `EVENT_TRANSPORT` | `none` | `sqs` |
+| `REQUEST_LOGGING` | unset | `true` (JSON access logs) |
+
+**Ephemeral-demo mode** exists so the full cloud architecture can be demonstrated with no
+database cost. Seed IDs are deterministic (`server/seed.js#demoId`) so every Lambda
+container starts with identical users, tasks and leave requests and JWTs work on any
+container. *Writes* made in one container are not visible in another, and all data resets
+on cold start. It is for demonstrations only; production still refuses the in-memory
+database unless the flag is explicitly `true`.
+
+## 7. What deliberately did not change
+
+* No business logic, route, response shape, role rule or SQL semantics changed, except
+  two pre-existing queries rewritten to an equivalent form (see
+  [`testing-report.md`](testing-report.md#pre-existing-defects-found)).
+* Local workflow is unchanged: `npm install && npm run dev`.
+* The original repository, Vercel project and Neon database are not referenced by any
+  code or configuration in this repository.

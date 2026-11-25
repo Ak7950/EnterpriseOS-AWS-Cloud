@@ -2,6 +2,14 @@
 
 The API is served beneath /api. Except for login, the routes below require an Authorization: Bearer <JWT> header. Successful responses use a JSON success envelope; errors include a message and an error code.
 
+## Operations
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | /health | Public | Liveness/readiness probe: `{status, database, databaseMode, version}`; 503 if the database does not answer. Sends `Cache-Control: no-store`. Added for the AWS version. |
+
+Every response carries an `X-Request-Id` header (a safe incoming value is echoed, otherwise a UUID is generated) for correlating with CloudWatch logs.
+
 ## Authentication and profile
 
 | Method | Endpoint | Access | Purpose |

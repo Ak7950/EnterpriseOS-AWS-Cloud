@@ -1,0 +1,3 @@
+# Command: npm audit (all) and npm audit --omit=dev
+found 0 vulnerabilities
+found 0 vulnerabilities

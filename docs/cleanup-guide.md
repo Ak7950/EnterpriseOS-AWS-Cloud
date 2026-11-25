@@ -1,0 +1,40 @@
+# Cleanup guide
+
+Stopping a lab session does **not** delete resources and does not stop every charge (SQS
+polling and alarms continue). Delete the stack when the demonstration or evaluation is over.
+
+## One command (CloudShell, same region and stage)
+
+```bash
+STAGE=dev bash scripts/aws/cleanup.sh
+```
+
+The script asks you to type the stack name, deletes the CloudFormation stack (both Lambda
+functions, the HTTP API or Function URL, both SQS queues, both SNS topics, alarms, the
+optional dashboard, the IAM roles if created, and all three log groups), waits for
+`DELETE_COMPLETE`, removes any log group that Lambda recreated, and then **verifies** that
+no function, queue or stack remains.
+
+Optional extras:
+
+```bash
+STAGE=dev DELETE_PARAMETERS=yes DELETE_SAM_BUCKET=yes bash scripts/aws/cleanup.sh
+```
+
+* `DELETE_PARAMETERS=yes` — deletes `/enterpriseos/dev/*` SecureStrings.
+* `DELETE_SAM_BUCKET=yes` — empties the versioned SAM artifact bucket and deletes the
+  `aws-sam-cli-managed-default` stack. Skip this if other SAM projects in the lab use it.
+
+## Manual verification (console)
+
+1. CloudFormation → no `enterpriseos-dev` stack (check *Deleted* filter for `DELETE_COMPLETE`).
+2. Lambda → no `enterpriseos-dev-*` functions.
+3. SQS / SNS → no `enterpriseos-dev-*` queues or topics.
+4. CloudWatch → Log groups → no `/aws/lambda/enterpriseos-dev-*`; Alarms → none.
+5. Systems Manager → Parameter Store → `/enterpriseos/dev/` removed (if requested).
+6. Learner Lab budget → note the final "Used $x" in `cost-analysis.md`.
+
+## What is kept
+
+The template, scripts, documentation and evidence stay in Git, so the identical stack can be
+recreated in minutes with `deploy.sh`.

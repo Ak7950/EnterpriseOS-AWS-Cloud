@@ -2,9 +2,9 @@
 
 ## Database engine
 
-EnterpriseOS uses PostgreSQL through the Node.js pg package. The hosted demonstration uses Neon PostgreSQL. When DATABASE_URL is absent in local development, server/db.js creates a pg-mem in-memory database. Production startup refuses to use the in-memory database.
+EnterpriseOS uses PostgreSQL through the Node.js pg package. In this AWS edition a persistent database is optional: `DatabaseMode=postgresql` reads `DATABASE_URL` from SSM Parameter Store (a non-production database only), while `DatabaseMode=ephemeral-demo` uses pg-mem with deterministic synthetic seed data and the explicit `DEMO_EPHEMERAL_DATABASE=true` flag. When DATABASE_URL is absent in local development, server/db.js creates a pg-mem in-memory database. Production startup refuses to use the in-memory database.
 
-The current schema is defined by the migrate() function in server/db.js. Run npm run db:migrate explicitly against a persistent PostgreSQL database. Application requests and Vercel cold starts do not run migrations.
+The current schema is defined by the migrate() function in server/db.js. Run npm run db:migrate explicitly against a persistent PostgreSQL database. Application requests and Lambda cold starts do not run migrations against PostgreSQL.
 
 ## Entity relationship overview
 
