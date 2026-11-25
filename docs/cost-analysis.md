@@ -11,7 +11,10 @@
 * Free-tier eligibility is **not** treated as "free": the estimates below assume **no free
   tier**, because Academy accounts may not receive it.
 
-**Spend to date: US$0.00 personal, US$0.00 Academy credits** — no AWS API call was made.
+**Verified budget (2026-11-25):** AWS Academy Cloud Developing Sandbox, *Used $0 of $40* →
+**Academy cap for this project = US$2.00**.
+
+**Spend to date: US$0.00 personal, US$0.00 Academy credits** — no AWS resource has been created.
 
 ## 2. Unit prices used (us-east-1)
 

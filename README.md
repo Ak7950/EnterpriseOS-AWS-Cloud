@@ -10,9 +10,9 @@ alarms, and a single **AWS SAM / CloudFormation** template.
 > tests, the template passes `cfn-lint`, and the built Lambda package passes a smoke test. Deployment
 > target is the **AWS Academy Cloud Developing Sandbox**. Its service list has been verified (Lambda,
 > API Gateway, SQS, SNS, CloudWatch, CloudFormation, SSM, S3 and CloudShell are all permitted), but
-> the budget is only visible in a running session and has not been read yet
-> ([environment audit](docs/aws-academy-environment-audit.md)). Until it is, the permitted spend is
-> **US$0**, and **no AWS resource exists**. Personal spending: **₹0**.
+> the lab budget is *Used $0 of $40*, so the Academy cap is **US$2.00**
+> ([environment audit](docs/aws-academy-environment-audit.md)). **No AWS resource exists yet.**
+> Personal spending: **₹0**.
 
 This repository is separate from the original Software Engineering project. It has its own Git
 history and does not reference the original repository, Vercel deployment or database.

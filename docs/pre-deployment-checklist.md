@@ -8,9 +8,9 @@ Locally*, which is a valid outcome.
 
 - [x] I am signed in to **AWS Academy** and using the **Cloud Developing 2.x Sandbox**, not a personal AWS account. *(verified 2026-11-25)*
 - [ ] No payment method is attached and none will be added. Personal spend stays **₹0**.
-- [ ] I recorded the remaining lab budget: `$______ of $______` (date: ________).
-- [ ] Cap for this deployment = min(US$3, 5 % × remaining) = `$______`, and it is **> $0**.
-- [ ] The estimate in `cost-analysis.md` (≈ $0.01–0.03 per session) is below that cap.
+- [x] I recorded the lab budget: `Used $0 of $40` (date: 2026-11-25).
+- [x] Cap for this deployment = min(US$3, 5 % × $40) = **`$2.00`**, which is **> $0**.
+- [x] The estimate in `cost-analysis.md` (≈ $0.01–0.03 per session) is below that cap.
 - [ ] I will run `scripts/aws/cleanup.sh` at the end of the session or right after the evaluation.
 
 ## Environment

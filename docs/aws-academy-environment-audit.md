@@ -14,21 +14,23 @@ AWS material but not yet confirmed for *this* account), or **Unverified** (unkno
 |---|---|---|
 | Which lab environment is available? | No separate *Learner Lab* course. Two courses: **AWS Academy Cloud Developing [182812]** and **AWS Academy Cloud Foundations [193288]**, each with a *Sandbox* module. The **Cloud Developing 2.x Sandbox** is the deployment target | **Verified** |
 | Signed in to AWS Academy? | Yes (student signed in on the agent's browser pane) | **Verified** |
-| Lab status at audit time | Sandbox *not started* (red indicator next to "AWS") | **Verified** |
-| Lab budget / credits remaining | Shown only while a lab session is active; the session was not started, so it was **not visible**. The Readme says budget data comes from AWS Budgets and lags 8–12 h | **Unverified (needs Start Lab)** |
+| Lab status | Not started at first check; started by the student later the same day → green indicator | **Verified** |
+| Lab budget / credits remaining | **"Used $0 of $40"** in the running session (the figure lags 8–12 h, per the Readme) | **Verified** |
+| Permitted Academy consumption | min(US$3, 5 % × $40 = $2.00) = **US$2.00** | **Derived** |
 | What happens when the session ends | Readme: "This environment is NOT long-lived"; when the timer reaches 0:00, all data and resources created in the account are **permanently deleted** | **Verified** |
 | What happens if the budget is exceeded | Readme: the lab account is **disabled** and all progress and resources are lost | **Verified** |
-| Session length | A timer is shown after Start Lab; choosing Start Lab again before 0:00 refreshes it. Exact length not seen (lab not started) | **Partly verified** |
+| Session length | Timer showed **02:57** right after start (≈ 3-hour sessions); choosing Start Lab again before 0:00 refreshes it | **Verified** |
 | Regions | Sandbox Readme: "All service access is limited to the us-east-1 and us-west-2 Regions" | **Verified** |
 | AWS CLI on this Mac | `aws` not installed; no `~/.aws` directory; no `AWS_*` environment variables | **Verified** |
 | SAM CLI / Docker / GitHub CLI | Not installed | **Verified** |
 | Temporary credentials | Learner Lab exposes short-lived credentials (access key, secret, **session token**) under *AWS Details*; none are present locally | **Documented** / none present (**Verified**) |
 | GitHub OIDC for deployments | Sandbox Readme: cannot create IAM users, groups or roles (service-linked roles only), so an OIDC deploy role is impossible | **Verified** |
 
-**Consequence:** service access is now verified for everything the stack needs, but the
-budget is still unknown, so under the project's financial rule the permitted Academy credit
-consumption **remains US$0** until the budget is read from a running session. Nothing has
-been deployed.
+**Consequence:** service access and budget are verified. The permitted Academy credit
+consumption is **US$2.00**; the estimated cost of one demonstration session is ≈ $0.01–0.03
+(≈ 1–2 % of the cap). Deployment is therefore *allowed* once the in-session checks in
+[`pre-deployment-checklist.md`](pre-deployment-checklist.md) pass (CloudShell pre-flight and
+the KMS/SecureString test). Nothing has been deployed yet.
 
 ## 2. Local machine inspection (verified)
 
@@ -137,10 +139,10 @@ These steps need your own login, which only you can do. They are all read-only.
 | Item | Value | Date |
 |---|---|---|
 | Lab environment available | Yes — Cloud Developing 2.x Sandbox (no separate Learner Lab course) | 2026-11-25 |
-| Budget (used / total) | _pending — visible only after Start Lab_ | |
-| Permitted consumption = min(US$3, 5 % of remaining) | _pending (currently US$0)_ | |
+| Budget (used / total) | $0 of $40 | 2026-11-25 |
+| Permitted consumption = min(US$3, 5 % of remaining) | **US$2.00** | 2026-11-25 |
 | Session end behaviour | All resources permanently deleted at 0:00 | 2026-11-25 |
-| Session length | _pending — timer visible after Start Lab_ | |
+| Session length | ≈ 3 h (timer 02:57 just after start) | 2026-11-25 |
 | API Gateway permitted | Yes (Sandbox Readme) | 2026-11-25 |
 | Lambda, CloudFormation, SQS, SNS, CloudWatch, SSM, S3, CloudShell permitted | Yes (Sandbox Readme) | 2026-11-25 |
 | KMS listed | No — SecureString creation to be tested in session | 2026-11-25 |
