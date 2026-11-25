@@ -1,0 +1,500 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  EnterpriseOS on AWS - serverless workforce-management platform.
+  Lambda (Express via loopback bridge) behind an API Gateway HTTP API or a Lambda
+  Function URL, SQS + Lambda worker + SNS for asynchronous domain events, SSM
+  Parameter Store for secrets and CloudWatch for logs and alarms.
+  No VPC, NAT gateway, load balancer, RDS, EC2 or Elastic IP is created.
+  DEPLOY ONLY AFTER docs/pre-deployment-checklist.md PASSES.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: { default: Environment }
+        Parameters: [StageName, AppVersion, Runtime]
+      - Label: { default: AWS Academy / IAM }
+        Parameters: [LambdaRoleArn]
+      - Label: { default: Entry point and data }
+        Parameters: [FrontDoor, DatabaseMode, SsmParameterPath, ExtraCorsOrigins]
+      - Label: { default: Cost and abuse controls }
+        Parameters: [ApiThrottleRateLimit, ApiThrottleBurstLimit, ApiReservedConcurrency, LogRetentionDays]
+      - Label: { default: Monitoring }
+        Parameters: [EnableAlarms, EnableDashboard, AlertEmail]
+
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    AllowedPattern: '^[a-z][a-z0-9-]{1,15}$'
+    Description: Short environment name used in resource names and tags.
+  AppVersion:
+    Type: String
+    Default: local
+    AllowedPattern: '^[A-Za-z0-9._-]{1,40}$'
+    Description: Version label reported by /health (e.g. the Git commit SHA).
+  Runtime:
+    Type: String
+    Default: nodejs24.x
+    AllowedValues: [nodejs24.x, nodejs22.x]
+  LambdaRoleArn:
+    Type: String
+    Default: ''
+    Description: >-
+      Existing execution role for both functions. In AWS Academy Learner Lab you
+      cannot create IAM roles - pass the ARN of the pre-created LabRole. Leave
+      empty in a normal account to create the least-privilege roles below.
+  FrontDoor:
+    Type: String
+    Default: HttpApi
+    AllowedValues: [HttpApi, FunctionUrl]
+    Description: >-
+      HttpApi = Amazon API Gateway HTTP API (throttling + access logs).
+      FunctionUrl = Lambda Function URL (fallback if API Gateway is not
+      permitted in the lab).
+  DatabaseMode:
+    Type: String
+    Default: ephemeral-demo
+    AllowedValues: [ephemeral-demo, postgresql]
+    Description: >-
+      ephemeral-demo = synthetic data in each Lambda container's memory (no
+      database cost; data resets on cold start). postgresql = DATABASE_URL read
+      from SSM Parameter Store.
+  SsmParameterPath:
+    Type: String
+    Default: /enterpriseos/dev/
+    AllowedPattern: '^/[A-Za-z0-9_.\-/]+/$'
+    Description: Path holding SecureString parameters JWT_SECRET and (optionally) DATABASE_URL.
+  ExtraCorsOrigins:
+    Type: String
+    Default: ''
+    Description: Optional comma-separated extra browser origins. The API's own origin is added automatically.
+  ApiThrottleRateLimit:
+    Type: Number
+    Default: 10
+    MinValue: 1
+    MaxValue: 100
+    Description: Steady-state requests per second allowed by the HTTP API stage (cost guard).
+  ApiThrottleBurstLimit:
+    Type: Number
+    Default: 20
+    MinValue: 1
+    MaxValue: 200
+  ApiReservedConcurrency:
+    Type: Number
+    Default: 0
+    MinValue: 0
+    MaxValue: 10
+    Description: >-
+      0 = not set. Reserving concurrency caps cost but fails if the account would
+      be left with fewer than 10 unreserved executions (common in sandboxes).
+  LogRetentionDays:
+    Type: Number
+    Default: 7
+    AllowedValues: [1, 3, 5, 7, 14]
+  EnableAlarms:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+  EnableDashboard:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: CloudWatch dashboards beyond the free allowance are billed monthly; off by default.
+  AlertEmail:
+    Type: String
+    Default: ''
+    Description: Optional e-mail for alarm notifications (requires confirming the SNS subscription).
+
+Conditions:
+  CreateRoles: !Equals [!Ref LambdaRoleArn, '']
+  UseHttpApi: !Equals [!Ref FrontDoor, HttpApi]
+  UseFunctionUrl: !Equals [!Ref FrontDoor, FunctionUrl]
+  EphemeralDatabase: !Equals [!Ref DatabaseMode, ephemeral-demo]
+  AlarmsEnabled: !Equals [!Ref EnableAlarms, 'true']
+  DashboardEnabled: !Equals [!Ref EnableDashboard, 'true']
+  HasAlertEmail: !Not [!Equals [!Ref AlertEmail, '']]
+  AlarmEmail: !And [!Condition AlarmsEnabled, !Condition HasAlertEmail]
+  HttpApiAlarms: !And [!Condition AlarmsEnabled, !Condition UseHttpApi]
+  HasReservedConcurrency: !Not [!Equals [!Ref ApiReservedConcurrency, 0]]
+
+Globals:
+  Function:
+    Runtime: !Ref Runtime
+    Architectures: [x86_64]
+    CodeUri: ../dist/lambda
+    Tags:
+      Project: EnterpriseOS
+      Stage: !Ref StageName
+      ManagedBy: CloudFormation
+
+Resources:
+  # ---------------------------------------------------------------- Logging
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-api
+      RetentionInDays: !Ref LogRetentionDays
+
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-worker
+      RetentionInDays: !Ref LogRetentionDays
+
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: UseHttpApi
+    Properties:
+      LogGroupName: !Sub /enterpriseos/${AWS::StackName}/http-api-access
+      RetentionInDays: !Ref LogRetentionDays
+
+  # ---------------------------------------------------------------- Messaging
+  EventDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-events-dlq
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+
+  EventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-events
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 345600
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt EventDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  EventQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [!Ref EventQueue, !Ref EventDeadLetterQueue]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 'sqs:*'
+            Resource: [!GetAtt EventQueue.Arn, !GetAtt EventDeadLetterQueue.Arn]
+            Condition:
+              Bool: { 'aws:SecureTransport': 'false' }
+
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-notifications
+      DisplayName: EnterpriseOS
+
+  OpsAlertTopic:
+    Type: AWS::SNS::Topic
+    Condition: AlarmsEnabled
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-ops-alerts
+      DisplayName: EnterpriseOS alerts
+
+  OpsAlertEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: AlarmEmail
+    Properties:
+      TopicArn: !Ref OpsAlertTopic
+      Protocol: email
+      Endpoint: !Ref AlertEmail
+
+  # ---------------------------------------------------------------- IAM (normal accounts only)
+  ApiFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: CreateRoles
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: enterpriseos-api-least-privilege
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: WriteOwnLogs
+                Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub '${ApiLogGroup.Arn}'
+              - Sid: PublishDomainEvents
+                Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt EventQueue.Arn
+              - Sid: ReadOwnSecureParameters
+                Effect: Allow
+                Action: ssm:GetParametersByPath
+                Resource: !Sub
+                  - arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${Path}
+                  - Path: !Select [0, !Split ['/|', !Join ['', [!Ref SsmParameterPath, '|']]]]
+
+  WorkerFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: CreateRoles
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: enterpriseos-worker-least-privilege
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: WriteOwnLogs
+                Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub '${WorkerLogGroup.Arn}'
+              - Sid: ConsumeDomainEvents
+                Effect: Allow
+                Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes, sqs:ChangeMessageVisibility]
+                Resource: !GetAtt EventQueue.Arn
+              - Sid: FanOutNotifications
+                Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref NotificationTopic
+
+  # ---------------------------------------------------------------- Compute
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-api
+      Description: EnterpriseOS web application and REST API (Express)
+      Handler: aws/lambda/api-handler.handler
+      Role: !If [CreateRoles, !GetAtt ApiFunctionRole.Arn, !Ref LambdaRoleArn]
+      MemorySize: 512
+      Timeout: 20
+      ReservedConcurrentExecutions: !If [HasReservedConcurrency, !Ref ApiReservedConcurrency, !Ref AWS::NoValue]
+      LoggingConfig:
+        LogGroup: !Ref ApiLogGroup
+      Environment:
+        Variables:
+          NODE_ENV: production
+          SERVICE_NAME: enterpriseos-api
+          APP_VERSION: !Ref AppVersion
+          SSM_PARAMETER_PATH: !Ref SsmParameterPath
+          DEMO_EPHEMERAL_DATABASE: !If [EphemeralDatabase, 'true', 'false']
+          CORS_ORIGIN: !Ref ExtraCorsOrigins
+          CORS_INCLUDE_API_ORIGIN: 'true'
+          EVENT_TRANSPORT: sqs
+          EVENT_QUEUE_URL: !Ref EventQueue
+          REQUEST_LOGGING: 'true'
+          LOG_LEVEL: info
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-worker
+      Description: Consumes EnterpriseOS domain events from SQS and fans out to SNS
+      Handler: aws/lambda/event-worker.handler
+      Role: !If [CreateRoles, !GetAtt WorkerFunctionRole.Arn, !Ref LambdaRoleArn]
+      MemorySize: 256
+      Timeout: 30
+      LoggingConfig:
+        LogGroup: !Ref WorkerLogGroup
+      Environment:
+        Variables:
+          NODE_ENV: production
+          SERVICE_NAME: enterpriseos-worker
+          NOTIFICATION_TOPIC_ARN: !Ref NotificationTopic
+      Events:
+        DomainEvents:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt EventQueue.Arn
+            BatchSize: 10
+            MaximumBatchingWindowInSeconds: 5
+            FunctionResponseTypes: [ReportBatchItemFailures]
+
+  # ---------------------------------------------------------------- Front door option A: API Gateway HTTP API
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Condition: UseHttpApi
+    Properties:
+      Name: !Sub ${AWS::StackName}-http-api
+      ProtocolType: HTTP
+      Description: EnterpriseOS public HTTPS endpoint
+
+  HttpApiIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Condition: UseHttpApi
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt ApiFunction.Arn
+      PayloadFormatVersion: '2.0'
+      TimeoutInMillis: 25000
+
+  HttpApiDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Condition: UseHttpApi
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: $default
+      Target: !Sub integrations/${HttpApiIntegration}
+
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Condition: UseHttpApi
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: $default
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingRateLimit: !Ref ApiThrottleRateLimit
+        ThrottlingBurstLimit: !Ref ApiThrottleBurstLimit
+        DetailedMetricsEnabled: false
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiAccessLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","method":"$context.httpMethod","path":"$context.path","status":"$context.status","latencyMs":"$context.responseLatency","integrationError":"$context.integrationErrorMessage"}'
+
+  HttpApiInvokePermission:
+    Type: AWS::Lambda::Permission
+    Condition: UseHttpApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ApiFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*
+
+  # ---------------------------------------------------------------- Front door option B: Lambda Function URL
+  ApiFunctionUrl:
+    Type: AWS::Lambda::Url
+    Condition: UseFunctionUrl
+    Properties:
+      TargetFunctionArn: !Ref ApiFunction
+      AuthType: NONE
+
+  ApiFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Condition: UseFunctionUrl
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref ApiFunction
+      Principal: '*'
+      FunctionUrlAuthType: NONE
+
+  ApiFunctionUrlInvokePermission:
+    Type: AWS::Lambda::Permission
+    Condition: UseFunctionUrl
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ApiFunction
+      Principal: '*'
+      InvokedViaFunctionUrl: true
+
+  # ---------------------------------------------------------------- Monitoring
+  ApiErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-api-errors
+      AlarmDescription: The API Lambda function threw unhandled errors.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions: [{ Name: FunctionName, Value: !Ref ApiFunction }]
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsAlertTopic]
+
+  WorkerErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-worker-errors
+      AlarmDescription: The event worker Lambda function failed.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions: [{ Name: FunctionName, Value: !Ref WorkerFunction }]
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsAlertTopic]
+
+  DeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-events-dlq-not-empty
+      AlarmDescription: Domain events exhausted their retries and reached the dead-letter queue.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions: [{ Name: QueueName, Value: !GetAtt EventDeadLetterQueue.QueueName }]
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsAlertTopic]
+
+  HttpApi5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HttpApiAlarms
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-http-api-5xx
+      AlarmDescription: The HTTP API returned server errors.
+      Namespace: AWS/ApiGateway
+      MetricName: 5xx
+      Dimensions:
+        - { Name: ApiId, Value: !Ref HttpApi }
+        - { Name: Stage, Value: $default }
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsAlertTopic]
+
+  OperationsDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Condition: DashboardEnabled
+    Properties:
+      DashboardName: !Sub ${AWS::StackName}-operations
+      DashboardBody: !Sub |
+        {"widgets":[
+          {"type":"metric","x":0,"y":0,"width":12,"height":6,"properties":{"title":"API Lambda","region":"${AWS::Region}","stat":"Sum","period":60,"metrics":[["AWS/Lambda","Invocations","FunctionName","${ApiFunction}"],[".","Errors",".","."],[".","Throttles",".","."]]}},
+          {"type":"metric","x":12,"y":0,"width":12,"height":6,"properties":{"title":"API latency (p95 ms)","region":"${AWS::Region}","stat":"p95","period":60,"metrics":[["AWS/Lambda","Duration","FunctionName","${ApiFunction}"]]}},
+          {"type":"metric","x":0,"y":6,"width":12,"height":6,"properties":{"title":"Event queue","region":"${AWS::Region}","stat":"Sum","period":60,"metrics":[["AWS/SQS","NumberOfMessagesSent","QueueName","${EventQueue.QueueName}"],[".","NumberOfMessagesDeleted",".","."],[".","ApproximateNumberOfMessagesVisible","QueueName","${EventDeadLetterQueue.QueueName}",{"stat":"Maximum","label":"DLQ depth"}]]}},
+          {"type":"log","x":12,"y":6,"width":12,"height":6,"properties":{"title":"Recent API errors","region":"${AWS::Region}","query":"SOURCE '${ApiLogGroup}' | fields @timestamp, message, path, status, errorMessage | filter level = 'error' | sort @timestamp desc | limit 20"}}
+        ]}
+
+Outputs:
+  AppUrl:
+    Description: Public HTTPS URL of EnterpriseOS
+    Value: !If
+      - UseHttpApi
+      - !Sub https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/
+      - !GetAtt ApiFunctionUrl.FunctionUrl
+  HealthCheckPath:
+    Description: Append to AppUrl for the health probe
+    Value: health
+  DatabaseMode:
+    Value: !Ref DatabaseMode
+  EventQueueUrl:
+    Value: !Ref EventQueue
+  EventDeadLetterQueueUrl:
+    Value: !Ref EventDeadLetterQueue
+  NotificationTopicArn:
+    Value: !Ref NotificationTopic
+  ApiLogGroupName:
+    Value: !Ref ApiLogGroup
+  WorkerLogGroupName:
+    Value: !Ref WorkerLogGroup

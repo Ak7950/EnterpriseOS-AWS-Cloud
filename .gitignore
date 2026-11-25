@@ -10,3 +10,8 @@ build/
 *.log
 .idea/
 .vscode/
+
+# AWS SAM / deployment local state
+.aws-sam/
+samconfig.toml
+*.zip

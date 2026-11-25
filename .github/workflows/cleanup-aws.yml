@@ -1,0 +1,45 @@
+name: Clean up AWS stack (manual only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage name to delete
+        default: dev
+        required: true
+      confirm:
+        description: Type DELETE-ENTERPRISEOS-STACK
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    environment: aws-academy
+    timeout-minutes: 30
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      STAGE: ${{ inputs.stage }}
+    steps:
+      - name: Require explicit confirmation
+        if: ${{ inputs.confirm != 'DELETE-ENTERPRISEOS-STACK' }}
+        run: |
+          echo "::error::Confirmation phrase missing."
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Delete stack and verify
+        env:
+          NONINTERACTIVE: 'yes'
+        run: bash scripts/aws/cleanup.sh

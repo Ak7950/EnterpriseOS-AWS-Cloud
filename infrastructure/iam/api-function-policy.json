@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WriteOwnLogs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
+      "Resource": "arn:aws:logs:${Region}:${AccountId}:log-group:/aws/lambda/enterpriseos-${Stage}-api:*"
+    },
+    {
+      "Sid": "PublishDomainEvents",
+      "Effect": "Allow",
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:${Region}:${AccountId}:enterpriseos-${Stage}-events"
+    },
+    {
+      "Sid": "ReadOwnSecureParameters",
+      "Effect": "Allow",
+      "Action": "ssm:GetParametersByPath",
+      "Resource": "arn:aws:ssm:${Region}:${AccountId}:parameter/enterpriseos/${Stage}"
+    }
+  ]
+}

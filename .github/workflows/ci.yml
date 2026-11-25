@@ -1,5 +1,6 @@
 name: CI
 
+# Runs on every push and pull request. It never talks to AWS and needs no secrets.
 on:
   pull_request:
   push:
@@ -7,8 +8,16 @@ on:
       - main
       - 'feature/**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Unit, integration and Lambda adapter tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,3 +27,51 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Production dependencies (blocking)
+        run: npm audit --omit=dev --audit-level=high
+      - name: All dependencies (blocking at high)
+        run: npm audit --audit-level=high
+
+  package:
+    name: Build and smoke-test the Lambda package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run package:lambda
+      - run: npm run smoke:lambda
+
+  infrastructure:
+    name: Validate infrastructure and scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install cfn-lint==1.61.0
+      - run: cfn-lint infrastructure/template.yaml
+      - name: ShellCheck deployment scripts
+        run: shellcheck scripts/*.sh scripts/aws/*.sh
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-secrets.sh

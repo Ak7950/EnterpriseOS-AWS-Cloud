@@ -1,0 +1,78 @@
+name: Deploy to AWS (manual only)
+
+# This workflow NEVER runs automatically. It must be started by hand and the
+# operator must type the confirmation phrase after completing
+# docs/pre-deployment-checklist.md (budget, region, permitted services).
+#
+# AWS Academy cannot create an IAM OIDC identity provider, so GitHub OIDC is
+# not possible there. Use short-lived Learner Lab session credentials stored as
+# environment secrets (they expire with the lab session), never long-lived keys.
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage name
+        default: dev
+        required: true
+      front_door:
+        description: HttpApi or FunctionUrl
+        default: HttpApi
+        required: true
+        type: choice
+        options: [HttpApi, FunctionUrl]
+      confirm:
+        description: Type I-COMPLETED-THE-COST-CHECKLIST
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: aws-academy
+    timeout-minutes: 30
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      STAGE: ${{ inputs.stage }}
+      FRONT_DOOR: ${{ inputs.front_door }}
+    steps:
+      - name: Require explicit cost confirmation
+        if: ${{ inputs.confirm != 'I-COMPLETED-THE-COST-CHECKLIST' }}
+        run: |
+          echo "::error::Confirmation phrase missing. Complete docs/pre-deployment-checklist.md first."
+          exit 1
+      - name: Require credentials to be configured
+        env:
+          HAS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' && secrets.AWS_SESSION_TOKEN != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::error::Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN (temporary Learner Lab credentials) as environment secrets."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Deploy
+        env:
+          CONFIRM_COST_CHECKLIST: 'yes'
+          NONINTERACTIVE: 'yes'
+          APP_VERSION: ${{ github.sha }}
+        run: bash scripts/aws/deploy.sh
