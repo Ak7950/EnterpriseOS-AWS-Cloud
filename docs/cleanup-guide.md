@@ -1,7 +1,9 @@
 # Cleanup guide
 
-Stopping a lab session does **not** delete resources and does not stop every charge (SQS
-polling and alarms continue). Delete the stack when the demonstration or evaluation is over.
+In the AWS Academy Cloud Developing Sandbox, all resources are permanently deleted when the
+session timer reaches 0:00 (verified in the lab Readme). Still run the cleanup script at the
+end of the demonstration: it stops charges immediately and *verifies* the deletion instead
+of relying on the timer. In any other account, ending a session deletes nothing.
 
 ## One command (CloudShell, same region and stage)
 

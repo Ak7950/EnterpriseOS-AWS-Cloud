@@ -25,12 +25,17 @@ npm test
 npm run package:lambda && npm run smoke:lambda
 ```
 
-## Option 1 — AWS Academy Learner Lab via CloudShell (recommended)
+## Option 1 — AWS Academy Cloud Developing Sandbox via CloudShell (recommended)
+
+> The Sandbox **permanently deletes every resource when its session timer reaches 0:00**.
+> Deploy in the same session you demonstrate, and keep the timer refreshed (choose
+> *Start Lab* again before it expires) during the evaluation.
 
 CloudShell runs inside the lab, already has the AWS CLI and SAM CLI, and picks up the lab
 credentials automatically, so **no access keys are copied anywhere**.
 
-1. AWS Academy → Learner Lab → **Start Lab** → wait for the green dot → click **AWS**.
+1. AWS Academy → **AWS Academy Cloud Developing → Modules → Sandbox → Sandbox** → **Start Lab** →
+   note the budget and timer → wait for the green dot → click **AWS**.
 2. Check the region selector says **N. Virginia (us-east-1)**.
 3. Open **CloudShell** (terminal icon in the console's top bar).
 4. Get the code. In CloudShell, either upload a zip of the repository (*Actions → Upload

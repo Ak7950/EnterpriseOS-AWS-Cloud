@@ -7,14 +7,14 @@ Status categories (exact definitions):
 * **Designed** — architecture and implementation approach documented; no code path.
 * **Not Available** — blocked by AWS Academy permissions or by this project's cost rules.
 
-As of 2026-11-25 **no service is *Implemented and Deployed***. See
+As of 2026-11-25 **no service is *Implemented and Deployed***. Every service the stack needs except KMS appears on the AWS Academy Cloud Developing Sandbox service list (verified). See
 [`aws-academy-environment-audit.md`](aws-academy-environment-audit.md) for why.
 
 | AWS service | Purpose in EnterpriseOS | Implementation status | Cost risk (us-east-1) | Where |
 |---|---|---|---|---|
 | **AWS Lambda** (API) | Runs the unchanged Express app (UI + REST API) per request; scales to zero | Implemented Locally | Low — $0.20/M requests + $0.0000166667/GB-s; a demo session ≈ <$0.01 | `aws/lambda/api-handler.js`, `http-bridge.js` |
 | **AWS Lambda** (worker) | Consumes domain events asynchronously | Implemented Locally | Low — invoked only when events exist | `aws/lambda/event-worker.js` |
-| **Amazon API Gateway HTTP API** | Public HTTPS endpoint, stage throttling (10 rps / 20 burst), JSON access logs | Implemented Locally (availability in this lab **unverified**) | Low — $1.00/M requests | `template.yaml` `HttpApi*` |
+| **Amazon API Gateway HTTP API** | Public HTTPS endpoint, stage throttling (10 rps / 20 burst), JSON access logs | Implemented Locally (**permitted** in the Cloud Developing Sandbox — verified 2026-11-25) | Low — $1.00/M requests | `template.yaml` `HttpApi*` |
 | **Lambda Function URL** | Fallback HTTPS endpoint if API Gateway is not permitted | Implemented Locally | None beyond Lambda | `template.yaml` `ApiFunctionUrl*` |
 | **Amazon SQS** (+ DLQ) | Durable buffer for `LEAVE_DECIDED` / `TASK_ASSIGNED` events; retries, dead-letter after 3 attempts | Implemented Locally | Low but **continuous**: Lambda's poller long-polls the queue while the stack exists (≈ tens of thousands of requests/day, cents per month) | `server/events.js`, `template.yaml` |
 | **Amazon SNS** | Fan-out of PII-free notification summaries; alarm delivery to e-mail | Implemented Locally | Very low — publishes and up to 1,000 e-mails/month are inside the always-free allowance | `event-worker.js`, `template.yaml` |
@@ -22,7 +22,7 @@ As of 2026-11-25 **no service is *Implemented and Deployed***. See
 | **CloudWatch Alarms** | Lambda errors, worker errors, DLQ not empty, HTTP 5xx | Implemented Locally | $0.10 per alarm-month, pro-rated (4 alarms ≈ $0.013/day) | `template.yaml` |
 | **CloudWatch Dashboard** | Operations view (invocations, p95 latency, queue, error log query) | Implemented Locally, **off by default** | Billed per dashboard-month beyond the free allowance of 3 | `EnableDashboard=false` |
 | **SSM Parameter Store** | SecureString storage for `JWT_SECRET`, optional `DATABASE_URL` | Implemented Locally | None — standard parameters have no additional charge | `config-loader.js`, `put-parameters.sh` |
-| **AWS KMS** (AWS-managed `aws/ssm` key) | Encrypts SecureStrings | Implemented Locally (implicit) | No key charge for AWS-managed keys; per-request fees are negligible (one call per cold start) | — |
+| **AWS KMS** (AWS-managed `aws/ssm` key) | Encrypts SecureStrings | Implemented Locally (implicit); **KMS is not on the Sandbox service list** — SecureString creation must be tested in a running session | No key charge for AWS-managed keys; per-request fees are negligible (one call per cold start) | — |
 | **AWS IAM** | Least-privilege roles (normal accounts) / `LabRole` (Academy) | Implemented Locally | None | `template.yaml`, `infrastructure/iam/` |
 | **AWS CloudFormation + SAM** | Reproducible, parameterised stack; one-command teardown | Implemented Locally (`cfn-lint` clean) | None | `infrastructure/template.yaml` |
 | **Amazon S3** | SAM deployment-artifact bucket (`--resolve-s3`) | Implemented Locally (created on first deploy) | ≈ $0.0003/month for a 6 MB zip; delete with `DELETE_SAM_BUCKET=yes` | `deploy.sh`, `cleanup.sh` |

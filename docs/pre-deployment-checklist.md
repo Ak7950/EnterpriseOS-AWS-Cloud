@@ -6,7 +6,7 @@ Locally*, which is a valid outcome.
 
 ## Account and money
 
-- [ ] I am signed in to **AWS Academy** and using the **Learner Lab** sandbox, not a personal AWS account.
+- [x] I am signed in to **AWS Academy** and using the **Cloud Developing 2.x Sandbox**, not a personal AWS account. *(verified 2026-11-25)*
 - [ ] No payment method is attached and none will be added. Personal spend stays **₹0**.
 - [ ] I recorded the remaining lab budget: `$______ of $______` (date: ________).
 - [ ] Cap for this deployment = min(US$3, 5 % × remaining) = `$______`, and it is **> $0**.
@@ -15,10 +15,12 @@ Locally*, which is a valid outcome.
 
 ## Environment
 
-- [ ] Region is **us-east-1** or **us-west-2**.
+- [ ] Region is **us-east-1** or **us-west-2** (the only regions the Sandbox allows — verified).
+- [ ] I understand the Sandbox deletes all resources when the session timer reaches 0:00, and exceeding the budget disables the lab account.
 - [ ] `preflight.sh` reports the caller as an AWS Academy lab role (`voclabs`).
-- [ ] The lab's *Services* page lists Lambda, CloudFormation, SQS, SNS, CloudWatch, SSM and S3.
-- [ ] API Gateway is listed → `FRONT_DOOR=HttpApi`; otherwise → `FRONT_DOOR=FunctionUrl`.
+- [x] The lab Readme lists Lambda, CloudFormation, SQS, SNS, CloudWatch, SSM and S3. *(verified 2026-11-25)*
+- [x] API Gateway is listed → `FRONT_DOOR=HttpApi`. *(verified 2026-11-25)*
+- [ ] `put-parameters.sh` succeeded (KMS is not on the service list, so SecureString creation must be proven in-session).
 - [ ] `LabRole` exists (`aws iam get-role --role-name LabRole`).
 - [ ] `JWT_SECRET` SecureString exists (`scripts/aws/put-parameters.sh`).
 
