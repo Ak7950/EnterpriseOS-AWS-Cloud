@@ -38,11 +38,11 @@ credentials automatically, so **no access keys are copied anywhere**.
    note the budget and timer → wait for the green dot → click **AWS**.
 2. Check the region selector says **N. Virginia (us-east-1)**.
 3. Open **CloudShell** (terminal icon in the console's top bar).
-4. Get the code. In CloudShell, either upload a zip of the repository (*Actions → Upload
-   file*), or clone it with a fine-grained, read-only GitHub token entered at the prompt:
+4. Get the code. The repository is public, so cloning needs no token. CloudShell keeps your home
+   folder between lab sessions, so remove any old copy first (or upload a zip via *Actions → Upload file*):
 
    ```bash
-   git clone https://github.com/Ak7950/EnterpriseOS-AWS-Cloud.git && cd EnterpriseOS-AWS-Cloud
+   cd ~ && rm -rf EnterpriseOS-AWS-Cloud && git clone https://github.com/Ak7950/EnterpriseOS-AWS-Cloud.git && cd EnterpriseOS-AWS-Cloud
    ```
 
 5. Install Node dependencies (CloudShell includes Node.js; v18+ works for packaging):

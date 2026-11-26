@@ -101,37 +101,39 @@ function content(section, title) {
 pres.addSection({ title: "Introduction" });
 let s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Introduction" });
 s.addText("EnterpriseOS on AWS", { placeholder: "title" });
-s.addText("A cost-safe serverless and event-driven cloud architecture for workforce management", { placeholder: "body" });
+s.addText("A serverless, event-driven cloud architecture for workforce management", { placeholder: "body" });
 text(s, "Avik Khetarpal  ·  Humza Ali Choudhri  ·  Shashwat Tewari", { x: 0.6, y: 3.95, w: 8.8, h: 0.35, fontSize: 16, color: C.background1 });
 text(s, "UCS553 Cloud Computing  ·  Group 4  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 3.6, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
-text(s, "Deployed & verified on AWS · 26 Nov 2026", { x: 0.6, y: 0.55, w: 3.6, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
-s.addNotes("Introduce the team and the one-line idea: we took our Software Engineering project, EnterpriseOS, and re-platformed it onto AWS using serverless and event-driven services, with a strict rule of zero personal cost. Be clear from the start: everything is implemented and tested, and the AWS deployment is done in the lab session on demonstration day.");
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 3.3, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
+text(s, "Live on AWS · deployed 26 Nov 2026", { x: 0.6, y: 0.55, w: 3.3, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
+s.addNotes("Introduce the team. One line: we took our workforce-management app, EnterpriseOS, and rebuilt how it runs so that it is hosted entirely on AWS using serverless and event-driven services. Everything you will see is live in our AWS Academy sandbox.");
 
-// ===================== 2. Problem & constraints =====================
-s = content("Introduction", "Why move EnterpriseOS to AWS");
+// ===================== 2. The idea =====================
+s = content("Introduction", "The idea: EnterpriseOS");
 card(s, { x: 0.5, y: 1.3, w: 3.4, h: 3.6, fill: C.text2 });
-text(s, "Starting point", { x: 0.8, y: 1.55, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: C.accent1 });
+text(s, "The problem", { x: 0.8, y: 1.5, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: C.accent1 });
 text(s, [
-  { text: "Workforce platform built in Software Engineering", options: { bullet: true, breakLine: true } },
-  { text: "Node.js + Express monolith, PostgreSQL", options: { bullet: true, breakLine: true } },
-  { text: "Hosted on Vercel + Neon", options: { bullet: true, breakLine: true } },
-  { text: "21 tests, role-based access, tenant isolation", options: { bullet: true } },
-], { x: 0.8, y: 2.0, w: 2.9, h: 2.7, fontSize: 14, color: C.background1, paraSpaceAfter: 8 });
-const cons = [
-  ["₹0", "Zero personal spend", "No paid plan, no free-tier assumptions"],
-  ["$", "AWS Free plan", "$120 credits; no charges unless upgraded"],
-  ["2", "Two environments", "Free plan target, Academy sandbox fallback"],
-  ["=", "Preserve the app", "Same routes, roles and local workflow"],
+  { text: "Workforce data spread across spreadsheets, e-mail approvals and separate tools", options: { bullet: true, breakLine: true } },
+  { text: "Slow approvals, duplicated records, no single view", options: { bullet: true, breakLine: true } },
+  { text: "EnterpriseOS puts it all in one secure web workspace", options: { bullet: true } },
+], { x: 0.8, y: 1.95, w: 2.9, h: 2.1, fontSize: 13, color: C.background1, paraSpaceAfter: 6 });
+text(s, "Users: admins · managers · employees", { x: 0.8, y: 4.3, w: 2.9, h: 0.35, fontSize: 12, italic: true, color: C.accent4 });
+const mods = [
+  ["Employees", "People directory, departments, manager → team"],
+  ["Attendance", "Clock in/out in India time, CSV export"],
+  ["Leave", "Apply, overlap checks, manager approval"],
+  ["Projects & tasks", "Projects and a drag-through task board"],
+  ["Dashboard", "Live summary of people, work and attendance"],
+  ["Governance", "Notifications and a full audit trail"],
 ];
-cons.forEach(([b, h, d], i) => {
-  const x = 4.2 + (i % 2) * 2.7, y = 1.3 + Math.floor(i / 2) * 1.85;
-  card(s, { x, y, w: 2.5, h: 1.65 });
-  badge(s, x + 0.2, y + 0.2, b);
-  text(s, h, { x: x + 0.75, y: y + 0.22, w: 1.65, h: 0.4, fontSize: 14, bold: true, color: C.text2, valign: "middle" });
-  text(s, d, { x: x + 0.2, y: y + 0.75, w: 2.15, h: 0.8, fontSize: 12, color: C.text1 });
+mods.forEach(([h, d], i) => {
+  const x = 4.2 + (i % 2) * 2.7, y = 1.3 + Math.floor(i / 2) * 1.23;
+  card(s, { x, y, w: 2.5, h: 1.08 });
+  badge(s, x + 0.15, y + 0.15, String(i + 1), C.accent2, C.background1);
+  text(s, h, { x: x + 0.68, y: y + 0.16, w: 1.75, h: 0.4, fontSize: 14, bold: true, color: C.text2, valign: "middle" });
+  text(s, d, { x: x + 0.15, y: y + 0.6, w: 2.25, h: 0.45, fontSize: 11 });
 });
-s.addNotes("The cloud question: how do you move an existing app to AWS so it demonstrates real cloud concepts without changing business logic and without spending money? Walk through the four constraints. Our deployment target is a new AWS account on the Free plan: 120 dollars of credits, 182 days, no charges unless upgraded, plus a zero-spend budget alert. The AWS Academy sandbox (40 dollars, 3-hour sessions) is the fallback. The original project, its Vercel deployment and its database were never touched; this is a separate private repository.");
+s.addNotes("EnterpriseOS is a multi-tenant workforce-management web app we built in Software Engineering with Node.js, Express and PostgreSQL. Three roles: admins manage the organisation, managers approve leave and run projects, employees record attendance and follow their tasks. Each organisation's data is kept separate. In this project the features stay the same; what changes is how and where it runs: entirely on AWS.");
 
 // ===================== 5. Architecture =====================
 pres.addSection({ title: "Architecture" });
@@ -167,142 +169,252 @@ text(s, "Future", { x: 6.05, y: 4.62, w: 0.9, h: 0.28, fontSize: 11, color: C.te
 text(s, "Live run: 26 Nov 2026, us-east-1", { x: 7.0, y: 4.62, w: 2.5, h: 0.28, fontSize: 11, color: C.accent4, valign: "middle", italic: true });
 s.addNotes("Left to right: the browser calls API Gateway, which forwards to the API Lambda running our unchanged Express app. On cold start it reads secrets from Parameter Store. When a manager approves leave or assigns a task, an event goes to SQS; a worker Lambda processes it and publishes to SNS; failures retry and then land in the dead-letter queue. CloudWatch collects logs and alarms. Solid lines are deployed and verified on AWS (26 November, Academy sandbox); the grey box is future scope. Key idea: Lambda receives JSON events, not HTTP connections, so a small dependency-free bridge starts Express on a private loopback port and replays each event as a real HTTP request. Every security check behaves exactly as it does locally, at about 1 ms overhead.");
 
-// ===================== 8. Event-driven pipeline =====================
-s = content("Architecture", "Event-driven processing");
-const chain = [["Manager approves leave", C.background2], ["API writes DB + publishes event", C.accent6], ["SQS queue", C.accent6], ["Worker Lambda validates & logs", C.accent6], ["SNS notification", C.accent6]];
-chain.forEach(([t, f], i) => {
-  const x = 0.5 + i * 1.84;
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.35, w: 1.62, h: 0.95, rectRadius: 0.08, fill: { color: f }, line: { color: C.accent2, width: 1 }, objectName: nm("chain") });
-  text(s, t, { x: x + 0.08, y: 1.35, w: 1.46, h: 0.95, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
-  if (i < chain.length - 1) arrow(s, x + 1.63, 1.82, x + 1.83, 1.82, false, C.accent1);
-});
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 4.18, y: 2.75, w: 1.62, h: 0.6, rectRadius: 0.08, fill: { color: C.background2 }, line: { color: C.accent5, width: 1 }, objectName: "dlq" });
-text(s, "Dead-letter queue + alarm", { x: 4.2, y: 2.75, w: 1.58, h: 0.6, fontSize: 11, bold: true, color: C.accent5, align: "center", valign: "middle" });
-arrow(s, 4.99, 2.3, 4.99, 2.75, true, C.accent5);
-text(s, "after 3 failed tries", { x: 5.1, y: 2.38, w: 1.6, h: 0.3, fontSize: 10, color: C.accent5, italic: true });
-const facts = [
-  ["Original behaviour kept", "Notification and audit rows are still written synchronously"],
-  ["Never blocks users", "If publishing fails, it is logged; the request still succeeds"],
-  ["Retry-safe", "Only failed messages retry (partial batch responses)"],
-  ["Privacy", "Events carry IDs and status only, never names or e-mails"],
-];
-facts.forEach(([h, d], i) => {
-  const x = 0.5 + (i % 2) * 4.6, y = 3.6 + Math.floor(i / 2) * 0.72;
-  text(s, [{ text: h + ": ", options: { bold: true, color: C.text2 } }, { text: d }], { x, y, w: 4.4, h: 0.65, fontSize: 13 });
-});
-s.addNotes("This is the event-driven part. The user gets their response immediately; slower side-effects such as e-mail fan-out run asynchronously. Delivery is at-least-once, so each event has a UUID for idempotent consumers in future. Poison messages go to the dead-letter queue, which raises a CloudWatch alarm.");
+// ===================== 4. Amazon API Gateway =====================
+pres.addSection({ title: "AWS services" });
+s = content("AWS services", "Amazon API Gateway");
+badge(s, 0.5, 1.12, "API", C.accent1, C.text2);
+text(s, [{ text: "Networking" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "a managed service that gives applications a public HTTPS address." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "A secure HTTPS URL without running any web server", options: { bullet: true, breakLine: true } },
+  { text: "Throttling protects the app and our budget from floods of requests", options: { bullet: true, breakLine: true } },
+  { text: "Access logs for every request", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "HTTP API enterpriseos-dev-http-api with one $default route", options: { bullet: true, breakLine: true } },
+  { text: "Forwards every request to the API Lambda as a JSON event", options: { bullet: true, breakLine: true } },
+  { text: "Throttle: 10 requests/second, burst 20", options: { bullet: true, breakLine: true } },
+  { text: "Access logs go to CloudWatch", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "API Gateway → enterpriseos-dev-http-api → Routes, Integrations, Protect → Throttling", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("Every click in the app goes through API Gateway over HTTPS. We chose the HTTP API type because it is cheaper and simpler than a REST API and we did not need REST-only features. Throttling at 10 requests per second protects both the application and the lab budget.");
 
-// ===================== 9. Security =====================
-pres.addSection({ title: "Engineering" });
-s = content("Engineering", "Security and automation");
-const sec = [
-  ["Secrets", "Only in SSM SecureStrings; a test proves none are in Lambda env vars"],
-  ["Least privilege", "Exact actions on exact ARNs; no wildcards (tested)"],
-  ["Spoof-proof throttle", "X-Forwarded-For overwritten with the AWS source IP"],
-  ["One template", "SAM / CloudFormation creates or deletes the whole stack"],
-  ["CI on every push", "Tests, audit, linters and secret scan in GitHub Actions"],
-  ["Guarded deploys", "Manual only: pre-flight checks, typed confirmation, verified cleanup"],
-];
-sec.forEach(([h, d], i) => {
-  const x = 0.5 + (i % 3) * 3.05, y = 1.3 + Math.floor(i / 3) * 1.85;
-  card(s, { x, y, w: 2.85, h: 1.6 });
-  badge(s, x + 0.2, y + 0.2, "✓", i < 3 ? C.accent3 : C.accent2, C.background1);
-  text(s, h, { x: x + 0.75, y: y + 0.22, w: 1.95, h: 0.4, fontSize: 15, bold: true, color: C.text2, valign: "middle" });
-  text(s, d, { x: x + 0.2, y: y + 0.78, w: 2.45, h: 0.75, fontSize: 12 });
-});
-s.addNotes("Top row is security, bottom row is automation. All original controls are preserved: bcrypt, 8-hour JWTs, role checks, tenant-scoped parameterised SQL and security headers. Accepted risk to mention honestly: in the Academy sandbox we must use LabRole, which is broader than our least-privilege policies. In a normal account the template creates the tight roles automatically. Deployments are never automatic, so CI can never spend credits by accident.");
+// ===================== 5. AWS Lambda =====================
 
-// ===================== 10b. Website demo =====================
-pres.addSection({ title: "Results" });
-s = content("Results", "The application, unchanged");
-[["ui-dashboard.png", "Manager dashboard"], ["ui-audit.png", "Audit trail after a leave approval"]].forEach(([f, cap], i) => {
+s = content("AWS services", "AWS Lambda");
+badge(s, 0.5, 1.12, "λ", C.accent1, C.text2);
+text(s, [{ text: "Compute" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "runs code on demand, without servers to manage." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "No servers to patch or keep running", options: { bullet: true, breakLine: true } },
+  { text: "Scales automatically with users", options: { bullet: true, breakLine: true } },
+  { text: "Pay only per request, nothing when idle", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "enterpriseos-dev-api: runs our unchanged Express app (Node.js 24, 512 MB)", options: { bullet: true, breakLine: true } },
+  { text: "A small bridge replays each API Gateway event as a real HTTP request, so every security check works as before", options: { bullet: true, breakLine: true } },
+  { text: "enterpriseos-dev-worker: processes background events from SQS", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "Lambda → Functions → enterpriseos-dev-api (trigger: API Gateway) and enterpriseos-dev-worker (trigger: SQS) → Monitor", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("Lambda does not receive HTTP connections; it receives JSON events. Our bridge starts Express on a private port inside the Lambda sandbox and replays each event as a normal HTTP request, so the original application did not need rewriting. The worker function is never called by a user; the queue triggers it.");
+
+// ===================== 6. Amazon SQS =====================
+
+s = content("AWS services", "Amazon SQS");
+badge(s, 0.5, 1.12, "SQS", C.accent1, C.text2);
+text(s, [{ text: "Application integration" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "a fully managed message queue." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Moves slow work off the user's request", options: { bullet: true, breakLine: true } },
+  { text: "Messages are stored safely until processed", options: { bullet: true, breakLine: true } },
+  { text: "Automatic retries, plus a dead-letter queue for failures", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Approving leave or assigning a task publishes LEAVE_DECIDED / TASK_ASSIGNED", options: { bullet: true, breakLine: true } },
+  { text: "The worker reads batches of up to 10 and retries only failed messages", options: { bullet: true, breakLine: true } },
+  { text: "After 3 failures a message moves to enterpriseos-dev-events-dlq and an alarm fires", options: { bullet: true, breakLine: true } },
+  { text: "Encrypted at rest; requests without TLS are denied", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "SQS → enterpriseos-dev-events → Monitoring, Dead-letter queue, Encryption, Access policy", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("This is the event-driven part of the project. The user's request finishes immediately; the queue holds the event until the worker processes it. If something keeps failing, the message is parked in the dead-letter queue instead of being lost, and CloudWatch raises an alarm.");
+
+// ===================== 7. Amazon SNS =====================
+
+s = content("AWS services", "Amazon SNS");
+badge(s, 0.5, 1.12, "SNS", C.accent1, C.text2);
+text(s, [{ text: "Application integration" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "publish/subscribe notifications." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "One message can reach many subscribers (e-mail, SMS, other systems)", options: { bullet: true, breakLine: true } },
+  { text: "New subscribers need no code change", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "The worker publishes a privacy-safe summary of each event to enterpriseos-dev-notifications", options: { bullet: true, breakLine: true } },
+  { text: "CloudWatch alarms publish to enterpriseos-dev-ops-alerts", options: { bullet: true, breakLine: true } },
+  { text: "Messages contain IDs and status only, never names or e-mail addresses", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "SNS → Topics → enterpriseos-dev-notifications and enterpriseos-dev-ops-alerts", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("SNS is the fan-out step. Be honest if asked: for the demo no subscribers are attached, so messages are published but not delivered to anyone. Adding an e-mail subscription is a console click and needs no code change.");
+
+// ===================== 8. Systems Manager Parameter Store + KMS =====================
+
+s = content("AWS services", "Systems Manager Parameter Store + KMS");
+badge(s, 0.5, 1.12, "SSM", C.accent1, C.text2);
+text(s, [{ text: "Security" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "encrypted storage for configuration and secrets; KMS provides the encryption key." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Keeps the login-token signing key out of code, Git and configuration", options: { bullet: true, breakLine: true } },
+  { text: "Encrypted with an AWS-managed KMS key", options: { bullet: true, breakLine: true } },
+  { text: "No extra charge", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Secret /enterpriseos/dev/JWT_SECRET stored as a SecureString", options: { bullet: true, breakLine: true } },
+  { text: "Generated by our script and never printed", options: { bullet: true, breakLine: true } },
+  { text: "The API Lambda reads it once at cold start; Lambda settings contain no secrets", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "Systems Manager → Parameter Store → /enterpriseos/dev/JWT_SECRET (SecureString, value hidden)", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("The JWT secret signs every login token, so it must never appear in code or configuration. It lives encrypted in Parameter Store with the aws/ssm KMS key, and the API function loads it when it starts. Show that the Lambda environment variables contain only a path, not the secret.");
+
+// ===================== 9. Amazon CloudWatch =====================
+
+s = content("AWS services", "Amazon CloudWatch");
+badge(s, 0.5, 1.12, "CW", C.accent1, C.text2);
+text(s, [{ text: "Monitoring" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "logs, metrics and alarms for AWS resources." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "See exactly what happened in each request", options: { bullet: true, breakLine: true } },
+  { text: "Get alerted automatically when something breaks", options: { bullet: true, breakLine: true } },
+  { text: "Measure performance", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "One JSON log line per request: path, status, duration, request ID", options: { bullet: true, breakLine: true } },
+  { text: "3 log groups, kept 7 days", options: { bullet: true, breakLine: true } },
+  { text: "4 alarms: API errors, worker errors, HTTP 5xx, dead-letter queue not empty", options: { bullet: true, breakLine: true } },
+  { text: "A /health endpoint for quick checks", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "CloudWatch → Log groups → enterpriseos-dev-worker → domain_event_processed; Alarms (4 OK)", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("Open the worker log group and show domain_event_processed for the leave you just approved: that proves the event travelled API to SQS to the worker. Then show the four alarms in OK state.");
+
+// ===================== 10. AWS IAM =====================
+
+s = content("AWS services", "AWS IAM");
+badge(s, 0.5, 1.12, "IAM", C.accent1, C.text2);
+text(s, [{ text: "Security" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "controls which identities and services may access which resources." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Least privilege limits damage if something goes wrong", options: { bullet: true, breakLine: true } },
+  { text: "Services get permissions, not passwords", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Our template defines a role per function with exact actions on exact resources (no wildcards, tested)", options: { bullet: true, breakLine: true } },
+  { text: "AWS Academy does not allow creating roles, so the sandbox uses its pre-made LabRole", options: { bullet: true, breakLine: true } },
+  { text: "API Gateway is allowed to call the API Lambda through a resource permission", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "Lambda → enterpriseos-dev-api → Configuration → Permissions (LabRole); ApiFunctionRole in template.yaml", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("Explain the sandbox limitation openly: the template creates strict roles in a normal AWS account, but the Academy sandbox only permits the broad LabRole, so that is what runs here.");
+
+// ===================== 11. CloudFormation + SAM + S3 =====================
+
+s = content("AWS services", "CloudFormation + SAM + S3");
+badge(s, 0.5, 1.12, "IaC", C.accent1, C.text2);
+text(s, [{ text: "Infrastructure as code" + ":  ", options: { bold: true, color: C.accent5 } }, { text: "describes the whole environment in one template that AWS builds for us." }], { x: 1.05, y: 1.12, w: 8.45, h: 0.42, fontSize: 14, valign: "middle" });
+card(s, { x: 0.5, y: 1.75, w: 3.6, h: 2.45 });
+text(s, "Why we used it", { x: 0.7, y: 1.9, w: 3.2, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "Identical environment every time", options: { bullet: true, breakLine: true } },
+  { text: "One command to create, one to delete", options: { bullet: true, breakLine: true } },
+  { text: "Automatic rollback if anything fails", options: { bullet: true } }
+], { x: 0.7, y: 2.3, w: 3.25, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+card(s, { x: 4.3, y: 1.75, w: 5.2, h: 2.45 });
+text(s, "How EnterpriseOS uses it", { x: 4.5, y: 1.9, w: 4.8, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
+text(s, [
+  { text: "infrastructure/template.yaml defines all 21 resources", options: { bullet: true, breakLine: true } },
+  { text: "SAM packages the Lambda code and uploads it to an S3 bucket", options: { bullet: true, breakLine: true } },
+  { text: "Stack enterpriseos-dev reached CREATE_COMPLETE", options: { bullet: true, breakLine: true } },
+  { text: "A failed first attempt rolled back cleanly; we fixed it and redeployed", options: { bullet: true } }
+], { x: 4.5, y: 2.3, w: 4.85, h: 1.8, fontSize: 12.5, paraSpaceAfter: 5 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.35, w: 9.0, h: 0.62, rectRadius: 0.06, fill: { color: C.text2 }, line: { type: "none" }, objectName: nm("demo-strip") });
+text(s, [{ text: "Show in demo:  ", options: { bold: true, color: C.accent1 } }, { text: "CloudFormation → enterpriseos-dev → Resources (21), Template; S3 → aws-sam-cli-managed-default-… bucket", options: { color: C.background1 } }], { x: 0.7, y: 4.35, w: 8.6, h: 0.62, fontSize: 12.5, valign: "middle" });
+s.addNotes("Nothing was created by hand. CloudFormation built every resource from our template, and SAM stored the code package in S3. When the first real deploy hit an SQS policy error, CloudFormation rolled everything back automatically, which is a nice real example of why infrastructure as code matters.");
+
+// ===================== 12. How we deployed =====================
+pres.addSection({ title: "Deployment" });
+s = content("Deployment", "How we deployed: AWS Academy sandbox");
+const dsteps = [
+  ["Start the sandbox", "AWS Academy Cloud Developing lab, us-east-1"],
+  ["Open CloudShell", "Browser terminal with AWS tools, no keys on laptops"],
+  ["Store the secret", "put-parameters.sh → Parameter Store"],
+  ["Pre-flight", "preflight.sh: 14 checks, all PASS"],
+  ["Deploy", "deploy.sh: package, test, SAM deploy"],
+  ["Live", "HTTPS URL, /health returns OK"],
+];
+dsteps.forEach(([h, d], i) => {
+  const x = 0.5 + i * 1.53;
+  card(s, { x, y: 1.35, w: 1.38, h: 2.2 });
+  badge(s, x + 0.48, 1.5, String(i + 1));
+  text(s, h, { x: x + 0.08, y: 2.0, w: 1.22, h: 0.5, fontSize: 13, bold: true, color: C.text2, align: "center", valign: "middle" });
+  text(s, d, { x: x + 0.1, y: 2.5, w: 1.18, h: 0.95, fontSize: 10.5, align: "center" });
+  if (i < dsteps.length - 1) arrow(s, x + 1.39, 2.45, x + 1.52, 2.45, false, C.accent1);
+});
+text(s, [
+  { text: "About the sandbox: ", options: { bold: true, color: C.accent5 } },
+  { text: "it uses lab credit, not our money, and deletes everything when a session ends. Because the whole stack is code, we recreate it in about 10 minutes, and cleanup.sh removes it afterwards." },
+], { x: 0.5, y: 3.8, w: 9.0, h: 0.9, fontSize: 13 });
+s.addNotes("We deployed from AWS CloudShell inside the AWS Academy Cloud Developing sandbox. Our scripts check the environment first, package and test the code, then let SAM and CloudFormation create everything. The sandbox removes all resources at the end of each session, which is why one-command deployment is essential.");
+
+// ===================== 13. Live proof =====================
+s = content("Deployment", "Live on AWS");
+[["ui-dashboard.png", "EnterpriseOS manager view (same code that runs on Lambda)"], ["aws-worker-log.png", "Worker Lambda triggered by SQS after a leave approval"]].forEach(([f, cap], i) => {
   const x = 0.5 + i * 4.6;
-  s.addImage({ path: path.join(__dirname, "..", "report", "figures", f), x, y: 1.3, w: 4.4, h: 2.475, objectName: nm("shot"), altText: cap });
-  s.addShape(pres.shapes.RECTANGLE, { x, y: 1.3, w: 4.4, h: 2.475, fill: { type: "none" }, line: { color: C.accent4, width: 0.75 }, objectName: nm("frame") });
+  const h = f === "aws-worker-log.png" ? 4.4 * 690 / 2000 : 2.475;
+  const y = 1.3 + (2.475 - h) / 2;
+  s.addImage({ path: path.join(__dirname, "..", "report", "figures", f), x, y, w: 4.4, h, objectName: nm("shot"), altText: cap });
+  s.addShape(pres.shapes.RECTANGLE, { x, y, w: 4.4, h, fill: { type: "none" }, line: { color: C.accent4, width: 0.75 }, objectName: nm("frame") });
   text(s, cap, { x, y: 3.85, w: 4.4, h: 0.3, fontSize: 12, color: C.accent4, align: "center", italic: true });
 });
 text(s, [
-  { text: "Same code locally and on Lambda: ", options: { bold: true, color: C.text2 } },
-  { text: "approving Rohan's leave writes the audit entry shown on the right and publishes a LEAVE_DECIDED event to SQS." },
-], { x: 0.5, y: 4.35, w: 9.0, h: 0.6, fontSize: 14 });
-s.addNotes("Screenshots from EnterpriseOS running with its synthetic demo data. The left shows the manager dashboard; the right shows the audit trail after the manager approved a pending leave request. In the cloud version, that same approval also publishes an event that the worker Lambda processes asynchronously.");
+  { text: "Verified on the live stack: ", options: { bold: true, color: C.text2 } },
+  { text: "HTTPS site and /health OK, protected API refuses unauthenticated calls, leave approval processed through SQS, 4 alarms OK." },
+], { x: 0.5, y: 4.3, w: 9.0, h: 0.65, fontSize: 13 });
+s.addNotes("This is where we switch to the live demo: open the site, log in as the manager, approve a leave, and then show the worker log entry in CloudWatch.");
 
-// ===================== 11. Cost =====================
-s = content("Results", "Cost: far below the cap");
-s.addChart(pres.charts.BAR, [{ name: "Estimated credits (US$)", labels: ["One demo session", "Idle 30 days", "Abuse at full throttle (24 h)", "Our credit cap"], values: [0.03, 0.70, 1.80, 2.00] }], {
-  x: 0.5, y: 1.25, w: 5.6, h: 3.7, barDir: "bar", chartColors: [HEX.accent3, HEX.accent4, HEX.accent5, HEX.dk2],
-  showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "$0.00", dataLabelFontSize: 11, dataLabelColor: HEX.dk1, dataLabelFontFace: "+mn-lt",
-  catAxisLabelColor: HEX.dk1, catAxisLabelFontSize: 11, catAxisLabelFontFace: "+mn-lt", valAxisHidden: true, valAxisMaxVal: 2.4,
-  valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
-  showTitle: true, title: "Estimated Academy credit use (no free tier)", titleFontSize: 13, titleColor: HEX.dk2, titleFontFace: "+mn-lt",
-  objectName: "cost-chart",
-});
-card(s, { x: 6.4, y: 1.25, w: 3.1, h: 3.7, fill: C.text2 });
-text(s, "₹0", { x: 6.6, y: 1.45, w: 2.7, h: 0.8, fontSize: 44, bold: true, color: C.accent1 });
-text(s, "personal spending", { x: 6.6, y: 2.25, w: 2.7, h: 0.35, fontSize: 14, color: C.background1 });
-text(s, [
-  { text: "No servers, NAT, load balancers or RDS", options: { bullet: true, breakLine: true } },
-  { text: "Throttling caps abuse", options: { bullet: true, breakLine: true } },
-  { text: "Zero-spend budget alert", options: { bullet: true } },
-], { x: 6.6, y: 2.75, w: 2.75, h: 2.0, fontSize: 13, color: C.background1, paraSpaceAfter: 6 });
-s.addNotes("Estimates use AWS's published us-east-1 prices without assuming any free tier. A demo session costs a few cents of Academy credit. The only idle charges are alarms and SQS polling, about 70 cents a month, and the sandbox removes even those at session end. The worst case, someone hammering the public URL at full throttle for a day, is still under our 2-dollar cap.");
-
-// ===================== 12. Testing =====================
-s = content("Results", "Testing and verification");
-const tstats = [["56/56", "automated tests pass"], ["0", "dependency vulnerabilities"], ["0", "lint findings (template, scripts, CI)"], ["2", "pre-existing bugs found and fixed"]];
-tstats.forEach(([v, l], i) => {
-  const x = 0.5 + i * 2.3;
-  card(s, { x, y: 1.3, w: 2.1, h: 1.55 });
-  text(s, v, { x: x + 0.1, y: 1.42, w: 1.9, h: 0.75, fontSize: 36, bold: true, color: i === 3 ? C.accent5 : C.accent3, align: "center", valign: "middle" });
-  text(s, l, { x: x + 0.12, y: 2.2, w: 1.86, h: 0.55, fontSize: 12, align: "center" });
-});
-text(s, [
-  { text: "What the new tests prove", options: { bold: true, color: C.text2, breakLine: true } },
-  { text: "Real Lambda events run through the real Express app: login, roles, CORS, security headers", options: { bullet: true, breakLine: true } },
-  { text: "A forged X-Forwarded-For header cannot bypass the login throttle", options: { bullet: true, breakLine: true } },
-  { text: "Leave decisions publish events; the worker retries only failed messages", options: { bullet: true, breakLine: true } },
-  { text: "The template contains no paid resource types, wildcard IAM or exposed secrets", options: { bullet: true } },
-], { x: 0.5, y: 3.1, w: 9.0, h: 1.9, fontSize: 14, paraSpaceAfter: 4 });
-s.addNotes("21 original tests plus 35 new ones. The built deployment package is also smoke-tested on its own. Highlight the two bugs: in local in-memory mode, managers could not approve leave or move tasks because of correlated SQL subqueries. We rewrote them into equivalent IN subqueries and added regression tests.");
-
-// ===================== 13. Deployment status =====================
-s = content("Results", "Status and future scope");
-const cols = [
-  ["Verified", C.accent3, ["AWS services and budgets", "56 tests, linters, audit", "Package smoke test"]],
-  ["Deployed", C.accent2, ["Lambda, API Gateway, SQS, SNS", "SSM secret, 4 alarms OK", "Stack CREATE_COMPLETE"]],
-  ["Future scope", C.accent4, ["Managed PostgreSQL (RDS)", "CloudFront, WAF, custom domain", "Cognito, X-Ray, OIDC deploys"]],
-];
-cols.forEach(([h, col, items], i) => {
-  const x = 0.5 + i * 3.05;
-  card(s, { x, y: 1.3, w: 2.85, h: 2.45 });
-  s.addShape(pres.shapes.OVAL, { x: x + 0.2, y: 1.48, w: 0.36, h: 0.36, fill: { color: col }, line: { type: "none" }, objectName: nm("dot") });
-  text(s, h, { x: x + 0.7, y: 1.46, w: 2.0, h: 0.4, fontSize: 16, bold: true, color: C.text2, valign: "middle" });
-  text(s, items.map((t, k) => ({ text: t, options: { bullet: true, breakLine: k < items.length - 1 } })), { x: x + 0.2, y: 2.05, w: 2.5, h: 1.6, fontSize: 13, paraSpaceAfter: 6 });
-});
-text(s, [
-  { text: "Live deployment (26 Nov): ", options: { bold: true, color: C.accent5 } },
-  { text: "one command from CloudShell → /health 200 from outside AWS → a leave approval started the worker Lambda through SQS (CloudWatch log). The sandbox deletes the stack after each session, so it is re-created for every demo." },
-], { x: 0.5, y: 4.0, w: 9.0, h: 0.95, fontSize: 13 });
-s.addNotes("Be explicit with the examiner about what is deployed. It was deployed and verified on 26 November in the AWS Academy sandbox; because the sandbox deletes resources after each session, it is re-created before the demo with one command. Everything is implemented and verified, and the deployment path is scripted. If we deploy during the demo, show the live link, the worker log entry for an approved leave, and the SQS metrics, then run the cleanup script.");
-
-// ===================== 15. Closing =====================
+// ===================== 14. Conclusion =====================
 pres.addSection({ title: "Close" });
 s = pres.addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Close" });
 s.addText("Conclusion", { placeholder: "title" });
 const take = [
-  ["Same app, cloud-native", "Unchanged business logic on Lambda, behind API Gateway"],
-  ["Real cloud concepts", "Serverless, messaging, secrets, IAM, monitoring, IaC"],
-  ["Evidence over claims", "56 tests, verified sandbox, honest deployment status"],
+  ["Same app, cloud-native", "EnterpriseOS now runs on Lambda behind API Gateway, with its features unchanged"],
+  ["9 AWS services together", "API Gateway, Lambda, SQS, SNS, Parameter Store, KMS, CloudWatch, IAM, CloudFormation"],
+  ["Built and run as code", "One template, one command to deploy, verified live on AWS"],
 ];
 take.forEach(([h, d], i) => {
   const x = 0.6 + i * 3.0;
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.6, w: 2.8, h: 1.9, rectRadius: 0.08, fill: { color: C.text1 }, line: { color: C.accent1, width: 1 }, objectName: nm("take") });
-  text(s, h, { x: x + 0.2, y: 1.8, w: 2.4, h: 0.6, fontSize: 16, bold: true, color: C.accent1 });
-  text(s, d, { x: x + 0.2, y: 2.45, w: 2.4, h: 0.95, fontSize: 13, color: C.background1 });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.55, w: 2.8, h: 1.95, rectRadius: 0.08, fill: { color: C.text1 }, line: { color: C.accent1, width: 1 }, objectName: nm("take") });
+  text(s, h, { x: x + 0.2, y: 1.72, w: 2.4, h: 0.6, fontSize: 16, bold: true, color: C.accent1 });
+  text(s, d, { x: x + 0.2, y: 2.35, w: 2.4, h: 1.05, fontSize: 12.5, color: C.background1 });
 });
-text(s, "Thank you. Questions?", { x: 0.6, y: 4.0, w: 8.8, h: 0.6, fontSize: 28, bold: true, color: C.background1 });
-text(s, "Private repository: Ak7950/EnterpriseOS-AWS-Cloud (access on request)", { x: 0.6, y: 4.7, w: 8.8, h: 0.35, fontSize: 12, color: C.accent4 });
-s.addNotes("Summarise the three takeaways and invite questions. Likely viva questions and answers are in docs/evaluation-guide.md: cold starts, why HTTP API over REST, duplicates with at-least-once delivery, least privilege with LabRole, and how cost was controlled.");
+text(s, "Next: managed PostgreSQL (RDS), CloudFront + WAF, Cognito sign-in, X-Ray tracing", { x: 0.6, y: 3.7, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
+text(s, "Thank you. Questions?", { x: 0.6, y: 4.1, w: 8.8, h: 0.55, fontSize: 26, bold: true, color: C.background1 });
+text(s, "github.com/Ak7950/EnterpriseOS-AWS-Cloud", { x: 0.6, y: 4.72, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
+s.addNotes("Close with the three takeaways. If asked about quality or cost: 56 automated tests pass, CI runs on every push, and the demo costs only a few cents of lab credit, with no personal spending.");
 
 (async () => {
   await pres.writeFile({ fileName: OUT });

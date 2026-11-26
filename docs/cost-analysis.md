@@ -14,7 +14,7 @@
 **Verified budget (2026-11-25):** AWS Academy Cloud Developing Sandbox, *Used $0 of $40* →
 **Academy cap for this project = US$2.00**.
 
-**Spend to date: US$0.00 personal, US$0.00 Academy credits** — no AWS resource has been created.
+**Spend to date: ₹0 personal.** Academy credits: two short sandbox sessions on 26–27 Nov 2026, estimated ≈ US$0.02–0.06 in total (the lab's budget figure lags 8–12 hours, so check the panel for the final number).
 
 ## 2. Unit prices used (us-east-1)
 

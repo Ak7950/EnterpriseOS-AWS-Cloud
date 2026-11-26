@@ -67,7 +67,7 @@ Both rewrites keep identical semantics on PostgreSQL and are covered by new regr
 
 ## 5. Not tested (and why)
 
-* **Real AWS execution** — nothing deployed yet (see the environment audit).
+* **Real AWS execution** — now covered: deployed and verified on 26 Nov 2026 (see `evidence/aws-deployment-2026-11-26.txt`). The first deploy exposed two defects no local check could catch (an empty SAM parameter override, and an SQS policy statement naming two queues); both were fixed, covered by tests and redeployed successfully.
 * **Real PostgreSQL** — no non-production PostgreSQL server is available locally (Docker is
   not installed). The existing `pg`-based code path is unchanged.
 * **Browser UI automation** — the frontend is unchanged; it was exercised through the same

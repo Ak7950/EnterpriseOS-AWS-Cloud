@@ -4,7 +4,7 @@
 
 | # | Limitation | Reason | Impact |
 |---|---|---|---|
-| 1 | **Nothing is deployed to AWS yet** | AWS Academy budget and service access could not be verified (sign-in required); cap is therefore US$0 | Project status is *Implemented Locally* |
+| 1 | The live stack is temporary | The AWS Academy sandbox deletes all resources when a session ends | Re-created for each demonstration with one command (≈10 min) |
 | 2 | Ephemeral-demo data is per Lambda container and resets on cold start | No paid database (ADR-004) | Demo writes can "disappear" if a request lands on another container |
 | 3 | Functions run as the broad `LabRole` in Academy | IAM role creation blocked | Least privilege only in normal accounts |
 | 4 | No GitHub OIDC; manual short-lived credentials | IAM IdP creation blocked | Manual credential refresh per session |

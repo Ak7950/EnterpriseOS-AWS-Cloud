@@ -1,9 +1,8 @@
 # Presentation
 
-`EnterpriseOS-AWS-Presentation.pptx`: 10 slides, 16:9, with speaker notes on every slide.
-
-After a verified deployment, update
-slide 1's status pill, the legend on slide 3 and slide 9 ("Status and future scope").
+`EnterpriseOS-AWS-Presentation.pptx`: 14 slides, 16:9, with speaker notes on every slide:
+title, the idea, architecture, one slide per AWS service (API Gateway, Lambda, SQS, SNS,
+Parameter Store + KMS, CloudWatch, IAM, CloudFormation + SAM + S3), how we deployed, live proof, conclusion.
 
 To regenerate after editing `build-deck.cjs` (needs `pptxgenjs`):
 

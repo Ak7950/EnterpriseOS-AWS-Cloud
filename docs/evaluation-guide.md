@@ -1,8 +1,10 @@
 # Evaluation guide (viva preparation)
 
 Use this to explain the project confidently and **accurately**. The most important rule:
-say what is deployed only when you can show evidence. As of 2026-11-25 the AWS stack is
-*implemented and tested locally, not deployed*.
+say what is deployed only when you can show evidence. **Status: deployed and verified on
+26 Nov 2026** in the AWS Academy Cloud Developing sandbox (us-east-1); evidence is in
+`docs/evidence/aws-deployment-2026-11-26.txt`. The sandbox deletes the stack after each session,
+so it is re-created before each demonstration (`docs/demo-day-runbook.md`).
 
 ---
 
@@ -59,8 +61,8 @@ say what is deployed only when you can show evidence. As of 2026-11-25 the AWS s
 | 8 | How does monitoring work? | Each request writes one JSON log line (method, path, status, duration, request ID). Logs Insights can query them. Alarms watch Lambda `Errors`, API `5xx` and DLQ depth and notify an SNS topic. |
 | 9 | How is security maintained? | Secrets in SSM only; least-privilege IAM where roles can be created; TLS-only encrypted queues; IP-spoof-proof rate limiting; strict security headers and CORS; PII-free events; secret scanning and dependency audits in CI. |
 | 10 | How is deployment automated? | `scripts/aws/deploy.sh`: pre-flight checks → tests → package → built-artifact smoke test → change-set review → `sam deploy` → health check. A manual GitHub workflow wraps the same script. |
-| 11 | What was actually deployed? | **Nothing yet** — I could not verify the Academy budget and service list, and my rule is $0 until verified. Everything is implemented and tested locally, and the template is validated. (Update this answer if you deploy; show `docs/evidence/`.) |
-| 12 | What is designed but not deployed? | All of the AWS stack today; plus CloudFront/S3 hosting, RDS/Aurora, DynamoDB rate limiting, X-Ray, Cognito and OIDC deployments, which are designed only. |
+| 11 | What was actually deployed? | The whole stack, in the AWS Academy sandbox (us-east-1): both Lambda functions, the HTTP API, SQS queue and dead-letter queue, SNS topics, the Parameter Store secret, CloudWatch log groups and 4 alarms — 21 resources from one template. Verified live: `/health` 200, unauthenticated API refused, and a leave approval processed by the worker through SQS. |
+| 12 | What is designed but not deployed? | The Lambda Function URL fallback and the CloudWatch dashboard (in the template, switched off), least-privilege IAM roles (the sandbox forces LabRole), plus CloudFront/S3 hosting, RDS/Aurora, DynamoDB rate limiting, X-Ray, Cognito and OIDC deployments. |
 | 13 | Why avoid certain paid services? | RDS, NAT gateways, ALBs and EC2 charge by the hour even when idle; Secrets Manager charges per secret. None was necessary to demonstrate the concepts, and the credit budget is shared and limited. |
 | 14 | How was cost controlled? | Serverless only; no free-tier assumptions; a per-resource estimate; throttling; dashboard off by default; 7-day log retention; a checklist and typed confirmation before deploy; a verified cleanup script; a test that fails if paid resource types appear in the template. |
 | 15 | What would production add? | Managed PostgreSQL with RDS Proxy in a VPC, CloudFront + WAF + a custom domain, Cognito or refresh tokens, DynamoDB for distributed rate limits and idempotency, X-Ray, OIDC deploys with canary releases, and Secrets Manager rotation. |
@@ -129,7 +131,7 @@ minutes and deletable in one command, which is exactly what makes cost control r
 
 ## 6. Demonstration walkthrough (about 8 minutes)
 
-**If not deployed (always possible):**
+**Fallback if AWS is unavailable (local only):**
 
 1. `npm test` → show 56 passing tests; point out the Lambda end-to-end suite.
 2. `npm run package:lambda && npm run smoke:lambda` → the built artifact works like Lambda.
@@ -142,7 +144,7 @@ minutes and deletable in one command, which is exactly what makes cost control r
 6. Show the GitHub Actions run (CI jobs) and the manual-only deploy workflow with its
    confirmation phrase.
 
-**If deployed (after the checklist):**
+**Live demo on AWS (normal case):**
 
 1. Open the HTTPS URL → `/health` → log in.
 2. As the manager, approve a leave request.

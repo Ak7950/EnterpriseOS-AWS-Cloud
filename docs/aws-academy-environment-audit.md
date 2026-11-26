@@ -30,7 +30,7 @@ AWS material but not yet confirmed for *this* account), or **Unverified** (unkno
 consumption is **US$2.00**; the estimated cost of one demonstration session is ≈ $0.01–0.03
 (≈ 1–2 % of the cap). Deployment is therefore *allowed* once the in-session checks in
 [`pre-deployment-checklist.md`](pre-deployment-checklist.md) pass (CloudShell pre-flight and
-the KMS/SecureString test). Nothing has been deployed yet.
+the KMS/SecureString test). **Update 26 Nov 2026:** both in-session checks passed (14/14 pre-flight, SecureString accepted) and the stack was deployed and verified — see `evidence/aws-deployment-2026-11-26.txt`.
 
 ## 2. Local machine inspection (verified)
 

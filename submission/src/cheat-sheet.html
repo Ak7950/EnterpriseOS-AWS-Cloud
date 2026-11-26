@@ -60,13 +60,13 @@
 <h1 class="section">The 6-minute demo script (who says what)</h1>
 <table class="script"><colgroup><col class="a"><col class="b"><col class="c"><col class="d"></colgroup>
   <thead><tr><th>Time</th><th>Speaker</th><th>Do this</th><th>Say this</th></tr></thead>
-  <tr><td>0:00</td><td>Member 1</td><td>Architecture diagram (PDF or slide 3)</td><td>The 30-second pitch. "Solid lines are deployed and verified; the dashed Function URL is our fallback."</td></tr>
+  <tr><td>0:00</td><td>Member 1</td><td>Slides 1–3: the idea, then the architecture diagram</td><td>The 30-second pitch. "Solid lines are deployed and verified; the dashed Function URL is our fallback."</td></tr>
   <tr><td>0:45</td><td>Member 1</td><td>Open the live URL, then <code>/health</code></td><td>"This is running on Lambda in us-east-1, behind API Gateway over HTTPS."</td></tr>
   <tr><td>1:30</td><td>Member 2</td><td>Log in as employee (no Approve buttons; Audit trail refused), then as manager → Leave center → Approve</td><td>"Roles and tenant isolation are enforced on the server. Approving leave writes the audit row and also publishes an event."</td></tr>
   <tr><td>2:30</td><td>Member 2</td><td>CloudWatch → worker log group → <code>domain_event_processed</code>; SQS monitoring</td><td>"The worker Lambda was triggered by SQS, not by us. Failures retry 3 times, then go to the dead-letter queue, which raises an alarm."</td></tr>
-  <tr><td>3:30</td><td>Member 3</td><td>Parameter Store (SecureString) → Lambda env vars → Alarms (4 OK)</td><td>"Secrets are never in code or configuration. Everything is monitored."</td></tr>
-  <tr><td>4:30</td><td>Member 3</td><td>CloudFormation → Resources tab; show <code>template.yaml</code></td><td>"All 21 resources come from one template: one command to create, one to delete."</td></tr>
-  <tr><td>5:15</td><td>Member 1</td><td><code>npm test</code> on the laptop; GitHub Actions</td><td>"56 tests, including Lambda end-to-end tests; CI on every push. Total cost: a few cents of lab credit, ₹0 personally."</td></tr>
+  <tr><td>3:30</td><td>Member 3</td><td>Slides 4–11 (one per service), switching to its console tab: API Gateway, Lambda, SQS, SNS, Parameter Store, Alarms, IAM</td><td>For each service: "why we used it" from the slide, then show it live in its console tab (the "Show in demo" line on every slide).</td></tr>
+  <tr><td>4:30</td><td>Member 3</td><td>Slide 11–12: CloudFormation → Resources tab, S3 bucket; how we deployed from CloudShell</td><td>"All 21 resources come from one template: one command to create, one to delete."</td></tr>
+  <tr><td>5:15</td><td>Member 1</td><td>Slides 13–14: live proof and conclusion; GitHub repo (public) and Actions</td><td>"Same app, now cloud-native, on 9 AWS services, built from one template. If asked: 56 automated tests and CI on every push; a few cents of lab credit, ₹0 personally."</td></tr>
 </table>
 <p>Tip: open these console tabs <b>before</b> 8:00 so nothing has to load during the demo: the app, <code>/health</code>, Lambda functions, API Gateway stage, SQS queue, worker log group, Parameter Store, CloudWatch Alarms, CloudFormation stack.</p>
 
@@ -87,13 +87,12 @@
 </ul>
 </div>
 <div>
-<h1 class="section">Tomorrow 7:00 am: redeploy</h1>
-<p>Full steps with troubleshooting: <code>docs/demo-day-runbook.md</code></p>
+<h1 class="section">If the lab session ended: redeploy (≈10 min)</h1>
+<p>Full steps with troubleshooting: <code>docs/demo-day-runbook.md</code>. The prompt must show <code>EnterpriseOS-AWS-Cloud $</code> before running the scripts.</p>
 <ol>
   <li>AWS Academy → Cloud Developing → Sandbox → <b>Start Lab</b> → green → <b>AWS</b> → region us-east-1 → CloudShell.</li>
-  <li>Upload <code>dist/enterpriseos-aws-cloudshell.zip</code>.</li>
   <li><code>export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1</code></li>
-  <li><code>unzip -q enterpriseos-aws-cloudshell.zip &amp;&amp; cd EnterpriseOS-AWS-Cloud &amp;&amp; npm ci</code></li>
+  <li><code>cd ~ &amp;&amp; rm -rf EnterpriseOS-AWS-Cloud &amp;&amp; git clone https://github.com/Ak7950/EnterpriseOS-AWS-Cloud.git &amp;&amp; cd EnterpriseOS-AWS-Cloud &amp;&amp; npm ci</code></li>
   <li><code>STAGE=dev bash scripts/aws/put-parameters.sh</code></li>
   <li><code>CONFIRM_COST_CHECKLIST=yes STAGE=dev FRONT_DOOR=HttpApi SKIP_TESTS=yes bash scripts/aws/deploy.sh</code> → <code>deploy</code> → <code>y</code></li>
   <li>Copy the <b>Application URL</b>; log in; approve a leave once so the worker log exists before the demo.</li>

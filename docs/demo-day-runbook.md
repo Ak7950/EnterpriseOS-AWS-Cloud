@@ -13,14 +13,21 @@ personal.** Bring the laptop charged, with `dist/enterpriseos-aws-cloudshell.zip
 
 ## 7:05 – upload and prepare (5 min)
 
-CloudShell → **Actions → Upload file** → choose `enterpriseos-aws-cloudshell.zip`. Then, one at a time:
+CloudShell keeps your home folder between lab sessions, so always start from a clean copy. The repo is
+public, so the simplest way is to clone it (no zip upload needed):
+
+```bash
+cd ~ && rm -rf EnterpriseOS-AWS-Cloud enterpriseos-aws-cloudshell.zip && git clone https://github.com/Ak7950/EnterpriseOS-AWS-Cloud.git
+```
+
+(Alternative: **Actions → Upload file** → `enterpriseos-aws-cloudshell.zip`, then unzip.) Then, one at a time:
 
 ```bash
 export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1
 ```
 
 ```bash
-unzip -q enterpriseos-aws-cloudshell.zip && cd EnterpriseOS-AWS-Cloud && npm ci --no-audit --no-fund
+cd ~/EnterpriseOS-AWS-Cloud && npm ci --no-audit --no-fund
 ```
 
 ```bash
