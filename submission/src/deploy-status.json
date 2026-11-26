@@ -1,0 +1,4 @@
+{
+  "text": "Every AWS component in Figure 1 is implemented and verified locally, and deployment is fully scripted. The live deployment will be demonstrated in the AWS Academy Cloud Developing sandbox during the lab evaluation (the sandbox deletes all resources when its 3-hour session ends, so the stack is created in the same session). Our AWS Free plan account is the long-term target and is awaiting AWS's new-account verification.",
+  "evidenceHtml": ""
+}

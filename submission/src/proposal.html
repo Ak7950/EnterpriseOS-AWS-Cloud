@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>EnterpriseOS on AWS - Project Proposal</title>
+<style><!--STYLE--></style>
+<style>
+  body { font-size: 11.5pt; line-height: 1.4; }
+  .head { text-align: center; margin-bottom: 14pt; }
+  .head .course { font-size: 13pt; }
+  .head .title { font-size: 22pt; font-weight: bold; margin: 4pt 0 0; }
+  .head .subtitle { font-style: italic; font-size: 12pt; margin-bottom: 6pt; }
+  .head .meta { font-size: 11pt; }
+  h1.section { font-size: 16pt; margin: 10pt 0 8pt; }
+</style></head><body>
+<div class="head">
+  <div class="course"><b>UCS553</b> – <i>Cloud Computing</i> · 2026-2027 · Project Proposal</div>
+  <div class="title">EnterpriseOS on AWS</div>
+  <div class="subtitle">A Cost-Safe Serverless and Event-Driven Cloud Architecture for Workforce Management</div>
+  <div class="meta">Group 4: Avik Khetarpal (1024031066) · Humza Ali Choudhri (1024031070) · Shashwat Tewari (1024031065)<br>
+  B.Tech 3rd Year Computer Engineering, Thapar Institute of Engineering and Technology · Lab Faculty: Ms. Ishani Rana</div>
+</div>
+
+<h1 class="section">Problem Statement</h1>
+<p>EnterpriseOS is our workforce-management web application (employees, departments, attendance, leave approvals, projects, tasks, notifications and an audit trail), built with Node.js, Express and PostgreSQL in the Software Engineering course. It works, but it runs on a hosting platform that hides the infrastructure, so it does not show how a real cloud system is designed, secured, monitored and costed.</p>
+<div class="note"><i>How can an existing web application be moved to Amazon Web Services so that it demonstrates core cloud-computing concepts (serverless compute, managed messaging, secret management, identity and access management, monitoring and infrastructure as code) without changing its business logic and without any personal expenditure?</i></div>
+<p>Constraints: zero personal cost (no paid plans; any AWS credit used must be estimated and capped), the restrictions of the AWS Academy sandbox and AWS Free plan accounts, and full preservation of every existing feature and test.</p>
+
+<h1 class="section">Objectives</h1>
+<ol>
+  <li>Run the existing EnterpriseOS application on <b>AWS Lambda</b> behind an <b>Amazon API Gateway</b> HTTPS endpoint without changing its business logic.</li>
+  <li>Keep all secrets out of the code, templates and logs using <b>AWS Systems Manager Parameter Store</b>.</li>
+  <li>Move slow side-effects to an <b>event-driven pipeline</b> (Amazon SQS → Lambda worker → Amazon SNS) with retries and a dead-letter queue.</li>
+  <li>Apply <b>least-privilege IAM</b>, encryption and request throttling.</li>
+  <li>Add <b>monitoring</b>: structured logs, a health-check endpoint and Amazon CloudWatch alarms.</li>
+  <li>Define the complete environment as <b>infrastructure as code</b> (AWS SAM / CloudFormation) with one-command deployment and verified cleanup.</li>
+  <li>Automate testing and validation with <b>GitHub Actions</b>, keeping deployments manual and cost-checked.</li>
+  <li>Estimate and cap cloud cost so that personal expenditure stays at <b>₹0</b>.</li>
+</ol>
+
+<h1 class="section">Proposed Solution</h1>
+<table>
+  <thead><tr><th style="width:30%">Layer</th><th>AWS service and approach</th></tr></thead>
+  <tr><td>Compute</td><td>AWS Lambda runs the unchanged Express app through a small, dependency-free loopback bridge</td></tr>
+  <tr><td>Front door</td><td>API Gateway HTTP API (throttled at 10 requests/s), with a Lambda Function URL fallback</td></tr>
+  <tr><td>Messaging</td><td>Amazon SQS queue and dead-letter queue, worker Lambda, Amazon SNS topic</td></tr>
+  <tr><td>Secrets and security</td><td>Parameter Store SecureStrings, scoped IAM roles, TLS-only encrypted queues</td></tr>
+  <tr><td>Monitoring</td><td>CloudWatch Logs (JSON, 7-day retention) and alarms for errors, 5xx responses and dead-lettered events</td></tr>
+  <tr><td>Automation</td><td>AWS SAM template, deployment, pre-flight and cleanup scripts, GitHub Actions CI</td></tr>
+</table>
+
+<h1 class="section">Scope and Expected Outcomes</h1>
+<ul>
+  <li><b>In scope:</b> serverless hosting of the web app and API, asynchronous leave/task events, secret storage, monitoring, infrastructure as code, CI/CD and a cost model.</li>
+  <li><b>Out of scope:</b> a paid managed database, CDN, custom domain and real e-mail delivery (documented as future work).</li>
+  <li><b>Expected outcomes:</b> a deployable AWS stack created from one template, all existing tests still passing plus new cloud tests, a demonstration costing only cents of credit, and complete documentation.</li>
+</ul>
+<p><b>Tools and technologies:</b> Node.js 24, Express 4, PostgreSQL/pg-mem, AWS Lambda, API Gateway, SQS, SNS, Systems Manager, CloudWatch, SAM/CloudFormation, GitHub Actions, AWS CloudShell.</p>
+</body></html>

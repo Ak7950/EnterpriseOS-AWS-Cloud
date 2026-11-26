@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>EnterpriseOS on AWS - System Architecture</title>
+<style><!--STYLE--></style>
+<style>
+  @page { size: A4 landscape; margin: 1.4cm; }
+  body { font-size: 11pt; line-height: 1.35; }
+  .head { text-align: center; margin-bottom: 8pt; }
+  .head .title { font-size: 20pt; font-weight: bold; }
+  .head .meta { font-size: 11pt; }
+  figure { margin: 2pt auto 6pt; width: 82%; }
+  figure svg { width: 100%; height: auto; }
+  h3 { font-size: 11.5pt; margin: 0 0 2pt; }
+  .cols ol, .cols ul { margin: 0; }
+  .cols li { margin-bottom: 1pt; text-align: left; }
+  .cols { display: flex; gap: 18pt; }
+  .cols > div { flex: 1; }
+  .cols h3 { margin-top: 0; }
+  .cols ol, .cols ul { font-size: 10pt; }
+</style></head><body>
+<div class="head">
+  <div class="title">EnterpriseOS on AWS: System Architecture</div>
+  <div class="meta">UCS553 Cloud Computing · Group 4 · Avik Khetarpal, Humza Ali Choudhri, Shashwat Tewari</div>
+</div>
+<figure><!--ARCH_SVG--></figure>
+<div class="cols">
+  <div>
+    <h3>Request flow</h3>
+    <ol>
+      <li>Browser sends an HTTPS request to API Gateway (throttled).</li>
+      <li>API Gateway forwards a JSON event to the API Lambda.</li>
+      <li>Cold start: secrets loaded from Parameter Store; Express started on 127.0.0.1.</li>
+      <li>The bridge replays the event as a real HTTP request (client IP verified by AWS).</li>
+      <li>Express runs auth, role checks and tenant-scoped SQL; the response returns to the browser.</li>
+    </ol>
+  </div>
+  <div>
+    <h3>Event flow</h3>
+    <ol>
+      <li>A manager approves leave or assigns a task.</li>
+      <li>The API writes the database rows, then publishes <code>LEAVE_DECIDED</code> / <code>TASK_ASSIGNED</code> to SQS.</li>
+      <li>The worker Lambda validates and logs each event and publishes a summary to SNS.</li>
+      <li>Only failed messages retry; after 3 attempts they move to the dead-letter queue, which raises a CloudWatch alarm.</li>
+    </ol>
+  </div>
+  <div>
+    <h3>Defined as code</h3>
+    <ul>
+      <li>One AWS SAM template: <code>infrastructure/template.yaml</code></li>
+      <li>IAM: least-privilege roles, or <code>LabRole</code> in AWS Academy</li>
+      <li>No NAT gateway, load balancer, EC2 or RDS (no hourly charges)</li>
+      <li>Logs kept 7 days; 4 CloudWatch alarms</li>
+    </ul>
+  </div>
+</div>
+</body></html>
