@@ -20,7 +20,7 @@ const HEX = THEME.colors;
 const pres = new pptxgen();
 pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
 pres.title = "EnterpriseOS on AWS";
-pres.author = "Group 4";
+pres.author = "Avik Khetarpal, Shashwat Tewari, Humza Ali Choudhri";
 pres.company = "Thapar Institute of Engineering and Technology";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 const C = pres.SchemeColor;
@@ -40,7 +40,7 @@ pres.defineSlideMaster({
   margin: [0.5, 0.5, 0.5, 0.5],
   objects: [
     { placeholder: { options: { name: "title", type: "title", x: 0.5, y: 0.3, w: 9.0, h: 0.75, fontSize: 30, bold: true, color: C.text2, valign: "middle", margin: 0 }, text: "" } },
-    { text: { text: "EnterpriseOS on AWS  ·  Group 4", options: { x: 0.5, y: 5.2, w: 6, h: 0.3, fontSize: 10, color: C.accent4, margin: 0 } } },
+    { text: { text: "EnterpriseOS on AWS  ·  UCS531 Cloud Computing", options: { x: 0.5, y: 5.2, w: 6, h: 0.3, fontSize: 10, color: C.accent4, margin: 0 } } },
   ],
   slideNumber: { x: 9.0, y: 5.2, w: 0.5, h: 0.3, fontSize: 10, color: C.accent4, align: "right" },
 });
@@ -102,10 +102,10 @@ pres.addSection({ title: "Introduction" });
 let s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Introduction" });
 s.addText("EnterpriseOS on AWS", { placeholder: "title" });
 s.addText("A serverless, event-driven cloud architecture for workforce management", { placeholder: "body" });
-text(s, "Avik Khetarpal  ·  Humza Ali Choudhri  ·  Shashwat Tewari", { x: 0.6, y: 3.95, w: 8.8, h: 0.35, fontSize: 16, color: C.background1 });
-text(s, "UCS553 Cloud Computing  ·  Group 4  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 3.3, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
-text(s, "Live on AWS · deployed 26 Nov 2026", { x: 0.6, y: 0.55, w: 3.3, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
+text(s, "Avik Khetarpal (1024031066)  ·  Shashwat Tewari (1024031065)  ·  Humza Ali Choudhri (1024031070)", { x: 0.6, y: 3.95, w: 8.8, h: 0.35, fontSize: 15, color: C.background1 });
+text(s, "UCS531 Cloud Computing  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 1.7, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
+text(s, "Live on AWS", { x: 0.6, y: 0.55, w: 1.7, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
 s.addNotes("Introduce the team. One line: we took our workforce-management app, EnterpriseOS, and rebuilt how it runs so that it is hosted entirely on AWS using serverless and event-driven services. Everything you will see is live in our AWS Academy sandbox.");
 
 // ===================== 2. The idea =====================

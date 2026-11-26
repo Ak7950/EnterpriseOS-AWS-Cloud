@@ -1,4 +1,4 @@
-# Lab submission (UCS553, Ms. Ishani Rana)
+# Lab submission (UCS531, Ms. Ishani Rana)
 
 | # | LMS item | File |
 |---|---|---|

@@ -26,7 +26,7 @@ chore: update CI workflow
 
 ## Project team
 
-EnterpriseOS is developed by Group 4 for Software Engineering (UCS503):
+EnterpriseOS was originally developed for Software Engineering (UCS503) by:
 
 - Avik Khetarpal
 - Humza Ali Choudhri

@@ -2,105 +2,165 @@
 <html lang="en"><head><meta charset="utf-8"><title>EnterpriseOS on AWS - Project Report</title>
 <style><!--STYLE--></style>
 <style>
-  @page { size: A4; margin: 1.6cm 1.8cm; }
-  body { font-size: 11pt; line-height: 1.32; }
-  h1.section { font-size: 15pt; margin: 4pt 0 6pt; }
-  h2 { font-size: 12.5pt; margin: 8pt 0 3pt; }
-  p { margin-bottom: 5pt; }
-  li { margin-bottom: 2pt; }
-  table { font-size: 10pt; margin: 3pt 0 6pt; }
-  th, td { padding: 2.5pt 5pt; }
-  figure { margin: 4pt 0 6pt; }
-  figcaption { font-size: 10pt; }
-  .head { text-align: center; margin-bottom: 8pt; }
-  .head img { width: 3.4cm; }
+  @page { size: A4; margin: 1.9cm 2.1cm 1.9cm 2.1cm; }
+  body { font-size: 11.4pt; line-height: 1.42; }
+  .pg { break-after: page; }
+  .pg:last-child { break-after: auto; }
+  p { margin: 0 0 6pt; text-align: justify; hyphens: manual; }
+  h1.chap { font-size: 13.5pt; font-weight: bold; text-transform: uppercase; text-decoration: none; text-align: left;
+            letter-spacing: .4pt; margin: 12pt 0 7pt; padding-bottom: 2pt; border-bottom: 1.2px solid #000; }
+  h1.chap:first-child { margin-top: 0; }
+  h2 { font-size: 12pt; font-weight: bold; margin: 9pt 0 4pt; }
+  ul, ol { margin: 0 0 7pt; padding-left: 20pt; }
+  li { margin: 0 0 2.5pt; padding-left: 2pt; text-align: justify; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.4pt; margin: 4pt 0 8pt; }
+  th, td { border: 0.8px solid #444; padding: 3pt 6pt; vertical-align: top; text-align: left; }
+  th { background: #e9e9e9; font-weight: bold; }
+  figure { margin: 6pt 0 9pt; text-align: center; break-inside: avoid; }
+  figure img { max-width: 100%; border: 0.8px solid #999; }
+  figcaption { font-size: 10pt; font-style: italic; margin-top: 3pt; }
+  code { font-size: 9.8pt; }
+  /* header block */
+  .head { text-align: center; margin-bottom: 10pt; padding-bottom: 8pt; border-bottom: 2px solid #000; }
+  .head img { width: 3.1cm; margin-bottom: 4pt; }
   .head .course { font-size: 12pt; }
-  .head .title { font-size: 20pt; font-weight: bold; }
-  .head .subtitle { font-style: italic; font-size: 11pt; }
-  .head .meta { font-size: 10.5pt; }
-  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 10pt; }
+  .head .title { font-size: 21pt; font-weight: bold; margin: 2pt 0 0; }
+  .head .subtitle { font-style: italic; font-size: 11.5pt; margin-bottom: 7pt; }
+  .head table.people { width: 86%; margin: 0 auto 5pt; font-size: 11pt; }
+  .head table.people td { border: none; text-align: center; padding: 1pt 4pt; }
+  .head .meta { font-size: 10.6pt; }
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt 12pt; margin: 4pt 0 6pt; }
   .shots figure { margin: 0; }
-  .p-break { break-before: page; }
+  .keyline { border-left: 3px solid #000; background: #f3f3f3; padding: 5pt 9pt; margin: 4pt 0 8pt; text-align: justify; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+  .cols2 ul { margin-bottom: 0; }
 </style></head><body>
 
+<!-- ======================= PAGE 1 ======================= -->
+<section class="pg">
 <div class="head">
   <img src="../../report/figures/thapar-logo.jpg" alt="Thapar Institute logo">
-  <div class="course"><b>UCS553</b> – <i>Cloud Computing</i> · 2026-2027</div>
+  <div class="course"><b>UCS531</b> – <i>Cloud Computing</i> · Project Report · 2026-2027</div>
   <div class="title">EnterpriseOS on AWS</div>
-  <div class="subtitle">A Cost-Safe Serverless and Event-Driven Cloud Architecture for Workforce Management</div>
-  <div class="meta">Avik Khetarpal (1024031066) · Humza Ali Choudhri (1024031070) · Shashwat Tewari (1024031065)<br>
-  B.Tech 3rd Year Computer Engineering, Thapar Institute of Engineering and Technology · Submitted to: Ms. Ishani Rana</div>
+  <div class="subtitle">A Serverless and Event-Driven Cloud Architecture for Workforce Management</div>
+  <table class="people"><tr>
+    <td><b>Avik Khetarpal</b><br>1024031066</td>
+    <td><b>Shashwat Tewari</b><br>1024031065</td>
+    <td><b>Humza Ali Choudhri</b><br>1024031070</td>
+  </tr></table>
+  <div class="meta">B.Tech 3rd Year Computer Engineering · Thapar Institute of Engineering and Technology<br>Submitted to: Ms. Ishani Rana</div>
 </div>
 
-<h1 class="section">Abstract</h1>
-<p>EnterpriseOS is our multi-tenant workforce-management application (employees, attendance, leave, projects, tasks, notifications and audit trail), originally built with Node.js, Express and PostgreSQL. This project re-platforms it onto Amazon Web Services without changing its business logic and with zero personal cost. The unchanged app runs on <b>AWS Lambda</b> behind an <b>API Gateway HTTP API</b>; secrets live in <b>Systems Manager Parameter Store</b>; leave decisions and task assignments are processed asynchronously through <b>Amazon SQS</b>, a worker Lambda and <b>Amazon SNS</b>, with a dead-letter queue; <b>CloudWatch</b> provides logs and alarms; and the whole stack is one <b>AWS SAM</b> template. 56 automated tests pass, linters and the dependency audit report no issues, and a demonstration costs about US$0.01–0.03 of credit.</p>
+<h1 class="chap">1. Abstract</h1>
+<p>EnterpriseOS is our multi-tenant workforce-management web application for employees, departments, attendance, leave approvals, projects, tasks, notifications and an audit trail, originally built with Node.js, Express and PostgreSQL. In this project we moved it onto Amazon Web Services without changing its business logic. The application runs on <b>AWS Lambda</b> behind an <b>Amazon API Gateway</b> HTTPS endpoint; secrets are kept in <b>AWS Systems Manager Parameter Store</b>; leave decisions and task assignments are processed asynchronously through <b>Amazon SQS</b>, a worker Lambda and <b>Amazon SNS</b>; <b>Amazon CloudWatch</b> provides logs and alarms; and the entire environment is defined in one <b>AWS CloudFormation / SAM</b> template. The stack was deployed in the AWS Academy sandbox and verified live.</p>
 
-<h1 class="section">Introduction</h1>
-<p><b>Problem statement.</b> The original EnterpriseOS ran on a platform that hid the infrastructure. We set out to show how an existing application can be moved to AWS so that it demonstrates serverless compute, managed messaging, secret management, IAM, monitoring and infrastructure as code, while keeping every feature unchanged and spending nothing personally.</p>
-<p><b>Objectives.</b></p>
-<ul>
-  <li>Run the unchanged app on Lambda behind a managed HTTPS endpoint.</li>
-  <li>Keep secrets out of code, templates and logs (Parameter Store).</li>
-  <li>Process slow side-effects asynchronously (SQS → Lambda → SNS) with retries and a dead-letter queue.</li>
-  <li>Apply least-privilege IAM, encryption, throttling and monitoring.</li>
-  <li>Define everything as code with one-command deployment and verified cleanup; automate testing in CI.</li>
-  <li>Estimate and cap cost so that personal expenditure stays at ₹0.</li>
-</ul>
-<p><b>Why cloud.</b> Lambda charges only per request and scales automatically; SQS stores events durably and retries failures; Parameter Store encrypts secrets; CloudWatch gives monitoring without extra software; and infrastructure as code makes the environment reproducible in minutes.</p>
+<h1 class="chap">2. Introduction</h1>
+<h2>2.1 Problem Statement</h2>
+<p>Organisations often manage people, attendance, leave and work across spreadsheets, e-mail approvals and separate tools, which leads to delays, duplicated records and no single view. EnterpriseOS solves this in one web workspace. However, the original version ran on a hosting platform that hid the infrastructure. The aim of this project is to show how such an application can be run on AWS using core cloud-computing services, so that it is scalable, secure, observable and reproducible, while keeping every existing feature unchanged.</p>
+<h2>2.2 Objectives</h2>
+<ol>
+  <li>Run the existing application on AWS Lambda behind a managed HTTPS endpoint.</li>
+  <li>Store all secrets outside the code and configuration using Parameter Store.</li>
+  <li>Process slow side-effects asynchronously with SQS, a worker Lambda and SNS, including retries and a dead-letter queue.</li>
+  <li>Apply IAM permissions, encryption and request throttling.</li>
+  <li>Monitor the system with structured logs, a health check and CloudWatch alarms.</li>
+  <li>Define the complete environment as code and deploy it with a single command.</li>
+</ol>
+</section>
 
-<h1 class="section p-break">Methodology</h1>
-<h2>System Architecture</h2>
-<figure><!--ARCH_SVG--><figcaption>Figure 1: AWS architecture (infrastructure/template.yaml)</figcaption></figure>
-<p><b>Key idea: loopback bridge.</b> Lambda receives JSON events, not HTTP connections. On the first request in each container, our handler loads secrets from Parameter Store, starts the unchanged Express app on a private port (127.0.0.1) and replays every API Gateway event as a real HTTP request. All existing security checks (headers, CORS, token and role checks, tenant-scoped SQL) therefore behave exactly as they do locally, with about 1 ms of overhead and no new dependency.</p>
-<h2>AWS Services Used</h2>
+<!-- ======================= PAGE 2 ======================= -->
+<section class="pg">
+<h1 class="chap">3. Methodology</h1>
+<h2>3.1 System Architecture</h2>
+<figure><!--ARCH_SVG--><figcaption>Figure 1: AWS architecture of EnterpriseOS (solid: deployed; dashed: fallback, not deployed; dotted: future)</figcaption></figure>
+<p>A request from the browser reaches <b>API Gateway</b>, which forwards it as a JSON event to the <b>API Lambda</b>. Because Lambda receives events rather than HTTP connections, we wrote a small, dependency-free <b>loopback bridge</b>: on start-up the handler loads secrets from Parameter Store, starts the unchanged Express application on a private port (127.0.0.1) inside the Lambda sandbox, and replays every event as a real HTTP request. All existing security checks, including token and role checks and organisation-scoped database queries, therefore behave exactly as before.</p>
+<h2>3.2 AWS Services Used</h2>
 <table>
-  <thead><tr><th style="width:24%">Service</th><th>Purpose</th><th style="width:33%">Why</th></tr></thead>
-  <tr><td>Lambda</td><td>Web app/API and event worker</td><td>No idle cost, auto-scaling</td></tr>
-  <tr><td>API Gateway (HTTP)</td><td>HTTPS endpoint, throttling, access logs</td><td>Cheaper than REST API</td></tr>
-  <tr><td>SQS + DLQ, SNS</td><td>Event buffer, retries, notifications</td><td>Reliable asynchronous processing</td></tr>
-  <tr><td>Parameter Store</td><td>Encrypted secrets</td><td>No extra charge</td></tr>
-  <tr><td>CloudWatch</td><td>JSON logs, 4 alarms</td><td>Built-in monitoring</td></tr>
-  <tr><td>SAM / CloudFormation</td><td>Whole stack as code</td><td>Reproducible, one-command delete</td></tr>
+  <thead><tr><th style="width:27%">Service</th><th>Role in EnterpriseOS</th></tr></thead>
+  <tr><td>Amazon API Gateway</td><td>Public HTTPS endpoint, throttling (10 requests/s, burst 20), access logs</td></tr>
+  <tr><td>AWS Lambda</td><td>Runs the web application and API, and a worker that processes events</td></tr>
+  <tr><td>Amazon SQS</td><td>Event queue with retries and a dead-letter queue after 3 failed attempts</td></tr>
+  <tr><td>Amazon SNS</td><td>Publishes notification summaries and alarm alerts to subscribers</td></tr>
+  <tr><td>Parameter Store + AWS KMS</td><td>Encrypted storage of the login-token signing key</td></tr>
+  <tr><td>Amazon CloudWatch</td><td>Structured logs (7-day retention) and 4 alarms</td></tr>
+  <tr><td>AWS IAM</td><td>Execution permissions for the functions (LabRole in the sandbox)</td></tr>
+  <tr><td>CloudFormation, SAM, S3</td><td>Whole stack (21 resources) as code; S3 stores the deployment package</td></tr>
 </table>
-<h2>Event-Driven Processing</h2>
+</section>
+
+<!-- ======================= PAGE 3 ======================= -->
+<section class="pg">
+<h2>3.3 Event-Driven Processing</h2>
 <figure><!--FLOW_SVG--><figcaption>Figure 2: Asynchronous processing of a leave decision</figcaption></figure>
-<p>The original notification and audit rows are still written immediately; the event is an extra step that never blocks the user. Only failed messages are retried, and after three failures they move to the dead-letter queue, which raises an alarm. Events carry identifiers only, never names or e-mails.</p>
-
-<h2 class="p-break">Security, Automation and Cost Control</h2>
+<p>When a manager approves leave or assigns a task, the API writes the database records as before and additionally publishes an event (<code>LEAVE_DECIDED</code> or <code>TASK_ASSIGNED</code>) to SQS. The worker Lambda is triggered by the queue, validates and logs each event, and publishes a summary to SNS. Only failed messages are retried; after three failures a message moves to the dead-letter queue and an alarm is raised. Events contain identifiers only, never names or e-mail addresses.</p>
+<h2>3.4 Security</h2>
 <ul>
-  <li><b>Security:</b> secrets only in SecureStrings (tested); least-privilege IAM with no wildcards (tested); client IP taken from AWS so the login rate limit cannot be bypassed; TLS-only, encrypted queues.</li>
-  <li><b>Automation:</b> <code>preflight.sh</code>, <code>put-parameters.sh</code>, <code>deploy.sh</code> (tests → package → smoke test → confirm → deploy → health check) and <code>cleanup.sh</code>; GitHub Actions run tests, audit, linters and a secret scan on every push; deployment is manual only.</li>
-  <li><b>Cost:</b> no NAT gateway, load balancer, EC2 or RDS. Estimated US$0.01–0.03 per demo session, ≈ US$0.70/month if idle, ₹0 personal spend. Environment: AWS Academy sandbox (US$40 budget, US$2 self-imposed cap) and an AWS Free plan account (US$120 credits, zero-spend alert).</li>
+  <li>Secrets are stored only as encrypted SecureStrings and loaded at start-up.</li>
+  <li>The template defines least-privilege roles with no wildcard permissions; the sandbox uses its pre-created LabRole.</li>
+  <li>HTTPS with security headers; queues are encrypted and reject non-TLS requests.</li>
+  <li>The login rate limit uses the client IP verified by AWS, so it cannot be bypassed.</li>
 </ul>
-<p><b>Tools:</b> Node.js 24, Express 4, PostgreSQL/pg-mem, AWS Lambda, API Gateway, SQS, SNS, Systems Manager, CloudWatch, SAM, GitHub Actions, AWS CloudShell, node:test, cfn-lint, ShellCheck.</p>
-
-<h1 class="section">Results</h1>
-<h2>Working Implementation</h2>
-<div class="shots">
-  <figure><img src="../../report/figures/ui-dashboard.png" alt="Dashboard"><figcaption>Figure 3: Manager dashboard</figcaption></figure>
-  <figure><img src="../../report/figures/ui-kanban.png" alt="Execution board"><figcaption>Figure 4: Task execution board</figcaption></figure>
-  <figure><img src="../../report/figures/ui-leaves.png" alt="Leave center"><figcaption>Figure 5: Pending leave request</figcaption></figure>
-  <figure><img src="../../report/figures/ui-audit.png" alt="Audit trail"><figcaption>Figure 6: Audit trail after approval (also publishes an event)</figcaption></figure>
-</div>
-
-<h2>Testing and Verification</h2>
+<h2>3.5 Deployment and Automation</h2>
+<p>Deployment was carried out from <b>AWS CloudShell</b> in the AWS Academy Cloud Developing sandbox (us-east-1) using our scripts:</p>
+<ol>
+  <li><code>put-parameters.sh</code> generates the secret and stores it in Parameter Store.</li>
+  <li><code>preflight.sh</code> runs 14 read-only checks of region, identity, permissions and secrets.</li>
+  <li><code>deploy.sh</code> packages and tests the code, then creates the stack with SAM and checks <code>/health</code>.</li>
+  <li><code>cleanup.sh</code> deletes the stack afterwards and verifies that nothing remains.</li>
+</ol>
+<p>GitHub Actions automatically run the tests, a dependency audit, template and script linters and a secret scan on every push.</p>
+<h2>3.6 Tools and Technologies</h2>
 <table>
-  <thead><tr><th>Check</th><th style="width:30%">Result</th></tr></thead>
-  <tr><td>Automated tests (21 original + 35 new, incl. Lambda end-to-end)</td><td><b>56 / 56 passed</b></td></tr>
-  <tr><td>Dependency audit (npm audit)</td><td>0 vulnerabilities</td></tr>
-  <tr><td>Template, script and workflow linters (cfn-lint, ShellCheck, actionlint)</td><td>0 findings</td></tr>
-  <tr><td>Secret scan (verified with a planted fake key)</td><td>Passed</td></tr>
-  <tr><td>Built Lambda package smoke test</td><td>Health, UI and login: HTTP 200</td></tr>
-  <tr><td>Cold start / warm request overhead (local)</td><td>≈ 0.75 s / ≈ 1 ms</td></tr>
-  <tr><td>Pre-existing defects found and fixed</td><td>2 (manager leave approval, task move)</td></tr>
+  <thead><tr><th style="width:27%">Area</th><th>Technologies</th></tr></thead>
+  <tr><td>Application</td><td>Node.js 24, Express 4, HTML/CSS/JavaScript, PostgreSQL (pg, pg-mem)</td></tr>
+  <tr><td>Cloud</td><td>Lambda, API Gateway, SQS, SNS, Systems Manager, KMS, CloudWatch, IAM, CloudFormation, SAM, S3, CloudShell</td></tr>
+  <tr><td>Quality and delivery</td><td>node:test, npm audit, cfn-lint, ShellCheck, GitHub Actions</td></tr>
 </table>
-<h2>Deployment Status</h2>
-<p><!--DEPLOY_STATUS--></p>
-<!--DEPLOY_EVIDENCE-->
+</section>
 
-<h1 class="section">Conclusion and Future Scope</h1>
-<p>EnterpriseOS now runs on a serverless, event-driven AWS architecture with its business logic unchanged and zero personal cost. The project applies pay-per-use compute, a managed HTTPS front door, reliable messaging with a dead-letter queue, encrypted secrets, least-privilege IAM, monitoring and infrastructure as code, and backs every claim with tests and evidence.</p>
-<p><b>Limitations:</b> in the zero-cost demo mode each Lambda container keeps its own in-memory data; the login rate limit is per container; the AWS Academy sandbox requires the broad <code>LabRole</code>.</p>
-<p><b>Future scope:</b> Amazon RDS/Aurora PostgreSQL with RDS Proxy, CloudFront with AWS WAF and a custom domain, Amazon Cognito sign-in, DynamoDB for global rate limiting, SES e-mail notifications, X-Ray tracing and keyless GitHub OIDC deployments.</p>
-<p><b>Source code:</b> github.com/Ak7950/EnterpriseOS-AWS-Cloud (README with setup, deployment and cleanup steps).</p>
+<!-- ======================= PAGE 4 ======================= -->
+<section class="pg">
+<h1 class="chap">4. Results</h1>
+<h2>4.1 Working Implementation</h2>
+<div class="shots">
+  <figure><img src="../../report/figures/ui-dashboard.png" alt="Manager dashboard"><figcaption>Figure 3: Manager dashboard</figcaption></figure>
+  <figure><img src="../../report/figures/ui-kanban.png" alt="Task board"><figcaption>Figure 4: Task execution board</figcaption></figure>
+  <figure><img src="../../report/figures/ui-leaves.png" alt="Leave center"><figcaption>Figure 5: Pending leave request</figcaption></figure>
+  <figure><img src="../../report/figures/ui-audit.png" alt="Audit trail"><figcaption>Figure 6: Audit trail after the approval</figcaption></figure>
+</div>
+<h2>4.2 Live Deployment on AWS</h2>
+<figure><img src="../../report/figures/aws-worker-log.png" alt="CloudWatch log of the worker Lambda"><figcaption>Figure 7: CloudWatch log of the worker Lambda, triggered by SQS after a leave approval on the live site</figcaption></figure>
+<div class="keyline">The CloudFormation stack reached <b>CREATE_COMPLETE</b>; the public HTTPS endpoint returned <b>HTTP 200</b> from <code>/health</code>; unauthenticated API calls were refused (<b>HTTP 401</b>); and approving a leave on the live site started the worker Lambda through SQS, as shown in Figure 7.</div>
+</section>
+
+<!-- ======================= PAGE 5 ======================= -->
+<section class="pg">
+<h2>4.3 Testing and Verification</h2>
+<table>
+  <thead><tr><th>Check</th><th style="width:32%">Result</th></tr></thead>
+  <tr><td>Automated tests (21 original and 35 new, including Lambda end-to-end tests)</td><td>56 of 56 passed</td></tr>
+  <tr><td>Dependency vulnerability audit</td><td>0 vulnerabilities</td></tr>
+  <tr><td>Template, script and workflow linters</td><td>0 findings</td></tr>
+  <tr><td>Live deployment checks (stack, health, authentication, event flow)</td><td>All passed</td></tr>
+  <tr><td>Defects found and fixed</td><td>2 in the original app, 2 during the first AWS deploy</td></tr>
+</table>
+<p>The first real deployment exposed two problems that only AWS could reveal: an empty deployment parameter and an SQS policy that named two queues in one statement. CloudFormation rolled back automatically; both were fixed, covered by tests and redeployed successfully.</p>
+
+<h1 class="chap">5. Conclusion and Future Scope</h1>
+<h2>5.1 Conclusion</h2>
+<p>EnterpriseOS now runs on a serverless, event-driven AWS architecture with its features unchanged. The project applies the main ideas of cloud computing to a real application: on-demand compute with Lambda, a managed HTTPS front door with API Gateway, reliable asynchronous messaging with SQS and SNS, encrypted secret storage, IAM permissions, monitoring with CloudWatch, and a reproducible environment built from a single template and verified live on AWS.</p>
+<h2>5.2 Limitations</h2>
+<ul>
+  <li>The demonstration keeps synthetic data in memory, so each Lambda container has its own copy.</li>
+  <li>The AWS Academy sandbox requires the broad LabRole and deletes resources after each session.</li>
+</ul>
+<h2>5.3 Future Scope</h2>
+<ul>
+  <li>Amazon RDS / Aurora PostgreSQL for persistent shared data.</li>
+  <li>Amazon CloudFront with AWS WAF and a custom domain.</li>
+  <li>Amazon Cognito sign-in and e-mail notifications through Amazon SES.</li>
+  <li>AWS X-Ray tracing and automated deployments from GitHub.</li>
+</ul>
+<p><b>Source code:</b> https://github.com/Ak7950/EnterpriseOS-AWS-Cloud</p>
+</section>
 </body></html>
