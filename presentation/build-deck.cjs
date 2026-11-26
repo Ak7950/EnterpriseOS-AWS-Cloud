@@ -103,7 +103,7 @@ let s = pres.addSlide({ masterName: "TITLE_DARK", sectionTitle: "Introduction" }
 s.addText("EnterpriseOS on AWS", { placeholder: "title" });
 s.addText("A cost-safe serverless and event-driven cloud architecture for workforce management", { placeholder: "body" });
 text(s, "Avik Khetarpal  ·  Humza Ali Choudhri  ·  Shashwat Tewari", { x: 0.6, y: 3.95, w: 8.8, h: 0.35, fontSize: 16, color: C.background1 });
-text(s, "Cloud Computing ([Course Code])  ·  Group 4  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
+text(s, "UCS553 Cloud Computing  ·  Group 4  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
 s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 3.6, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
 text(s, "Implemented & verified · deployment pending", { x: 0.6, y: 0.55, w: 3.6, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
 s.addNotes("Introduce the team and the one-line idea: we took our Software Engineering project, EnterpriseOS, and re-platformed it onto AWS using serverless and event-driven services, with a strict rule of zero personal cost. Be clear from the start: everything is implemented and tested, and the AWS deployment is done in the lab session on demonstration day.");

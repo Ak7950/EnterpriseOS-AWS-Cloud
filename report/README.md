@@ -14,7 +14,7 @@ underlined chapter headings, cover with course, year, logo, roll numbers and "Su
 
 ## Before submitting
 
-Replace `[Course Code]` and `[Faculty Name]` on the cover (in `report.html`), then rebuild:
+To change the cover text, edit `report.html`, then rebuild:
 
 ```bash
 NODE_PATH=/path/to/node_modules node report/build-report.cjs /path/to/python-with-pypdf
