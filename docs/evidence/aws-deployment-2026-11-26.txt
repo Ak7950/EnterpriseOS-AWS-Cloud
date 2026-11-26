@@ -1,0 +1,26 @@
+# AWS deployment evidence - AWS Academy Cloud Developing Sandbox, us-east-1
+# Deployed 2026-11-26T11:50Z from AWS CloudShell with scripts/aws/deploy.sh (FrontDoor=HttpApi, DatabaseMode=ephemeral-demo, LabRole)
+# Stack enterpriseos-dev: CREATE_COMPLETE. Account ID redacted. The sandbox deletes the stack when its session ends.
+
+## Pre-flight (from CloudShell): 14/14 PASS (region, lab role, SAM 1.166.2, LabRole, SecureString JWT_SECRET, read access to lambda/sqs/sns/cloudformation/logs/apigatewayv2)
+
+## Stack outputs
+AppUrl: https://bxrp6lfoz7.execute-api.us-east-1.amazonaws.com/
+EventQueueUrl: https://sqs.us-east-1.amazonaws.com/************/enterpriseos-dev-events
+EventDeadLetterQueueUrl: https://sqs.us-east-1.amazonaws.com/************/enterpriseos-dev-events-dlq
+ApiLogGroupName: /aws/lambda/enterpriseos-dev-api
+WorkerLogGroupName: /aws/lambda/enterpriseos-dev-worker
+
+## External checks from a laptop in India (11:50Z)
+{"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"local"}  -> HTTP 200 in 1.707264s
+{"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"local"}  -> HTTP 200 in 0.906470s
+{"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"local"}  -> HTTP 200 in 0.968521s
+GET / -> HTTP 200 (295 bytes)
+x-frame-options: DENY
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains
+GET /api/dashboard without token -> HTTP 401
+
+## Issues found and fixed during the first real deploy
+1. deploy.sh passed an empty 'AlertEmail=' override, which SAM rejects -> optional overrides now omitted when empty.
+2. SQS rejected a queue policy statement listing two queues ('Each statement in the policy should have exactly one resource'); CloudFormation rolled back cleanly -> one policy per queue, new test asserts single-resource statements.
