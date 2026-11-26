@@ -168,10 +168,12 @@ Resources:
         deadLetterTargetArn: !GetAtt EventDeadLetterQueue.Arn
         maxReceiveCount: 3
 
+  # SQS requires each queue-policy statement to name exactly one queue,
+  # so each queue gets its own TLS-only policy.
   EventQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
-      Queues: [!Ref EventQueue, !Ref EventDeadLetterQueue]
+      Queues: [!Ref EventQueue]
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -179,7 +181,22 @@ Resources:
             Effect: Deny
             Principal: '*'
             Action: 'sqs:*'
-            Resource: [!GetAtt EventQueue.Arn, !GetAtt EventDeadLetterQueue.Arn]
+            Resource: !GetAtt EventQueue.Arn
+            Condition:
+              Bool: { 'aws:SecureTransport': 'false' }
+
+  EventDeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [!Ref EventDeadLetterQueue]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 'sqs:*'
+            Resource: !GetAtt EventDeadLetterQueue.Arn
             Condition:
               Bool: { 'aws:SecureTransport': 'false' }
 

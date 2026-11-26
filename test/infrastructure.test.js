@@ -60,9 +60,17 @@ test('every log group has a short retention period', () => {
 test('queues are encrypted, TLS-only and have a dead-letter queue', () => {
   for (const [name, queue] of ofType('AWS::SQS::Queue')) assert.equal(queue.Properties.SqsManagedSseEnabled, true, `${name} not encrypted`);
   assert.equal(template.Resources.EventQueue.Properties.RedrivePolicy.maxReceiveCount, 3);
-  const deny = template.Resources.EventQueuePolicy.Properties.PolicyDocument.Statement[0];
-  assert.equal(deny.Effect, 'Deny');
-  assert.equal(deny.Condition.Bool['aws:SecureTransport'], 'false');
+  const policies = ofType('AWS::SQS::QueuePolicy');
+  assert.equal(policies.length, ofType('AWS::SQS::Queue').length, 'every queue has a TLS-only policy');
+  for (const [name, policy] of policies) {
+    assert.equal(policy.Properties.Queues.length, 1, `${name} must target exactly one queue`);
+    for (const statement of policy.Properties.PolicyDocument.Statement) {
+      // SQS rejects statements that list more than one resource (found in a real deploy).
+      assert.ok(!Array.isArray(statement.Resource), `${name}/${statement.Sid} must name exactly one resource`);
+      assert.equal(statement.Effect, 'Deny');
+      assert.equal(statement.Condition.Bool['aws:SecureTransport'], 'false');
+    }
+  }
 });
 
 test('public entry point is throttled and the worker reports partial batch failures', () => {
