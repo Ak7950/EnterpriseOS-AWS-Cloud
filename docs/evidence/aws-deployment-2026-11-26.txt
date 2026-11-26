@@ -24,3 +24,14 @@ GET /api/dashboard without token -> HTTP 401
 ## Issues found and fixed during the first real deploy
 1. deploy.sh passed an empty 'AlertEmail=' override, which SAM rejects -> optional overrides now omitted when empty.
 2. SQS rejected a queue policy statement listing two queues ('Each statement in the policy should have exactly one resource'); CloudFormation rolled back cleanly -> one policy per queue, new test asserts single-resource statements.
+
+## Redeploy with hardened template - 2026-11-26T23:15Z
+Fresh sandbox session; repo cloned from GitHub at commit 00a7cc8 (public).
+Pre-flight 14/14 PASS, including the fail-closed identity check: 'PASS Caller is an AWS Academy lab role'.
+Stack enterpriseos-dev: CREATE_COMPLETE (21 resources). New settings accepted by AWS: SQS VisibilityTimeout 185 s,
+worker event source ScalingConfig MaximumConcurrency 2 (WorkerFunctionDomainEvents CREATE_COMPLETE), API Lambda timeout 10 s.
+AppUrl: https://zakyhf7a55.execute-api.us-east-1.amazonaws.com/
+{"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"00a7cc8"}  -> HTTP 200
+{"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"00a7cc8"}  -> HTTP 200
+GET / -> HTTP 200
+GET /api/dashboard without token -> HTTP 401
