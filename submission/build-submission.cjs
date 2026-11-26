@@ -32,6 +32,7 @@ function render(name) {
     ['proposal.html', '1-Project-Proposal.pdf', {}],
     ['architecture.html', '2-System-Architecture.pdf', { landscape: true }],
     ['report-short.html', '5-Project-Report.pdf', {}],
+    ['cheat-sheet.html', 'Demo-Cheat-Sheet.pdf', { landscape: true }],
   ];
   for (const [src, out, extra] of jobs) {
     const tmp = render(src);

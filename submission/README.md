@@ -8,7 +8,9 @@
 | 4 | Source code with README | This repository (`README.md` at the root) |
 | 5 | Project report with screenshots (max 5 pages) | `5-Project-Report.pdf` |
 
-The full 20-page report is `report/EnterpriseOS-AWS-Report.pdf` and the slides are
+`Demo-Cheat-Sheet.pdf` (3 pages, not for the LMS) maps every feature to how to show it live and where it is in the AWS console, with the 6-minute demo script, short viva answers, tomorrow's redeploy steps and cleanup.
+
+The full report is `report/EnterpriseOS-AWS-Report.pdf` and the slides are
 `presentation/EnterpriseOS-AWS-Presentation.pptx`.
 
 Rebuild after editing `src/*.html` or `src/deploy-status.json`:

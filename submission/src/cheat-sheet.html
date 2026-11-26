@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>EnterpriseOS on AWS - Demo Cheat Sheet</title>
+<style><!--STYLE--></style>
+<style>
+  @page { size: A4 landscape; margin: 1.1cm 1.3cm; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 9.6pt; line-height: 1.32; }
+  h1.section { font-family: Arial, Helvetica, sans-serif; font-size: 13pt; text-decoration: none; text-align: left; margin: 8pt 0 4pt; border-bottom: 1.5px solid #232F3E; padding-bottom: 2pt; }
+  h2 { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; margin: 6pt 0 2pt; }
+  p, li { text-align: left; margin-bottom: 2pt; }
+  ul, ol { padding-left: 15pt; margin-bottom: 4pt; }
+  table { font-size: 8.8pt; margin: 3pt 0 6pt; }
+  th, td { padding: 2.5pt 4pt; }
+  th { background: #232F3E; color: #fff; }
+  code { font-size: 8.6pt; background: #f1f3f5; padding: 0 2pt; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .top .t { font-size: 17pt; font-weight: bold; }
+  .pitch { background: #FFF4E0; border: 1px solid #FF9900; padding: 5pt 8pt; margin: 4pt 0 6pt; }
+  .nums { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4pt; margin: 4pt 0 6pt; }
+  .nums div { border: 1px solid #ccd; border-radius: 4pt; padding: 3pt; text-align: center; background: #F3F5F8; }
+  .nums b { display: block; font-size: 13pt; color: #C05621; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+  .warn { background: #FDECEA; border: 1px solid #C05621; padding: 4pt 7pt; }
+  .p-break { break-before: page; }
+  .feat td:first-child { font-weight: bold; }
+  .feat col.a { width: 12%; } .feat col.b { width: 28%; } .feat col.c { width: 27%; } .feat col.d { width: 33%; }
+  .script col.a { width: 5%; } .script col.b { width: 9%; } .script col.c { width: 36%; } .script col.d { width: 50%; }
+  .two { grid-template-columns: 1.1fr 1fr; }
+</style></head><body>
+
+<div class="top"><span class="t">EnterpriseOS on AWS: Demo Cheat Sheet</span><span>UCS553 · Group 4 · Lab eval 8:00 am, Room L011</span></div>
+
+<div class="pitch"><b>30-second pitch:</b> "We took our Software Engineering app, EnterpriseOS, and moved it to AWS <i>without changing its business logic</i> and with <i>zero personal cost</i>. The same Express app runs on <b>Lambda behind API Gateway</b>; secrets are in <b>Parameter Store</b>; leave approvals and task assignments become <b>events in SQS</b> that a <b>worker Lambda</b> processes and sends to <b>SNS</b>, with retries and a <b>dead-letter queue</b>; <b>CloudWatch</b> logs and alarms watch everything; and the whole stack is <b>one SAM template</b>, deployed with one command and deleted with one command."</div>
+
+<div class="nums">
+  <div><b>56/56</b>tests pass</div>
+  <div><b>0</b>vulnerabilities</div>
+  <div><b>21</b>AWS resources, 1 template</div>
+  <div><b>~10 min</b>deploy</div>
+  <div><b>$0.01–0.03</b>per demo</div>
+  <div><b>₹0</b>personal spend</div>
+</div>
+
+<h1 class="section">Feature-by-feature: show it working, then show where it lives</h1>
+<table class="feat"><colgroup><col class="a"><col class="b"><col class="c"><col class="d"></colgroup>
+  <thead><tr><th>Feature</th><th>What we built and how</th><th>Show it live (app / terminal)</th><th>Show it in AWS console</th></tr></thead>
+  <tr><td>Serverless hosting</td><td>Unchanged Express app on Lambda via our loopback bridge (<code>aws/lambda/http-bridge.js</code>)</td><td>Open the <code>…execute-api…amazonaws.com</code> URL; app loads over HTTPS</td><td>Lambda → Functions → <code>enterpriseos-dev-api</code> (Node.js 24, 512 MB) → Monitor tab (invocations)</td></tr>
+  <tr><td>API Gateway + throttling</td><td>HTTP API, <code>$default</code> route, 10 req/s, burst 20, JSON access logs</td><td>Every click in the app goes through it</td><td>API Gateway → <code>enterpriseos-dev-http-api</code> → Stages → <code>$default</code> → Throttling</td></tr>
+  <tr><td>Auth, roles, tenancy</td><td>bcrypt + 8-hour JWT, role checks, every query scoped by organisation (original app, preserved)</td><td>Log in as <code>employee@demo.com</code>: Leave center has <b>no Approve buttons</b>; opening People directory or Audit trail is <b>refused by the server (403)</b>. Log in as <code>manager@demo.com</code>: Approve appears</td><td>(App-level feature.) <code>curl …/api/dashboard</code> without login → <b>401</b></td></tr>
+  <tr><td>Event-driven processing</td><td><code>LEAVE_DECIDED</code> / <code>TASK_ASSIGNED</code> → SQS → worker Lambda → SNS (<code>server/events.js</code>, <code>event-worker.js</code>)</td><td>Manager → Leave center → <b>Approve</b></td><td>CloudWatch → Log groups → <code>/aws/lambda/enterpriseos-dev-worker</code> → newest stream → <code>domain_event_processed</code>. SQS → <code>enterpriseos-dev-events</code> → Monitoring (messages sent/deleted)</td></tr>
+  <tr><td>Retries + dead-letter queue</td><td>Partial batch failures; after 3 failed receives a message moves to the DLQ; alarm if DLQ is not empty</td><td>(Explain; failures are tested in 2 unit tests)</td><td>SQS → <code>enterpriseos-dev-events</code> → Dead-letter queue tab (maxReceiveCount 3); CloudWatch → Alarms → <code>…-events-dlq-not-empty</code></td></tr>
+  <tr><td>Secret management</td><td>JWT signing key as a SecureString, read at cold start (<code>config-loader.js</code>); never in code or env vars</td><td>—</td><td>Systems Manager → Parameter Store → <code>/enterpriseos/dev/JWT_SECRET</code> (type SecureString, value hidden). Lambda → Configuration → Environment variables: <b>no secrets</b>, just the path <code>SSM_PARAMETER_PATH</code> and plain settings</td></tr>
+  <tr><td>Monitoring</td><td>JSON logs with request IDs, <code>/health</code> probe, 4 alarms (API errors, worker errors, 5xx, DLQ)</td><td>Open <code>…/health</code> → <code>{"status":"ok"}</code></td><td>CloudWatch → Alarms (4 OK). Logs Insights on <code>/aws/lambda/enterpriseos-dev-api</code>: <code>fields path, status, durationMs | sort @timestamp desc</code></td></tr>
+  <tr><td>Security hardening</td><td>HTTPS + HSTS, CSP, X-Frame-Options; TLS-only encrypted queues; spoof-proof login rate limit</td><td>Browser padlock; DevTools → Network → response headers</td><td>SQS → queue → Access policy (Deny if <code>aws:SecureTransport</code> false); Encryption: SSE-SQS</td></tr>
+  <tr><td>IAM</td><td>Least-privilege roles in the template (no wildcards, tested); sandbox forces <code>LabRole</code></td><td>Open <code>infrastructure/template.yaml</code> → <code>ApiFunctionRole</code></td><td>Lambda → Configuration → Permissions → LabRole</td></tr>
+  <tr><td>Infrastructure as code</td><td>One SAM template; <code>deploy.sh</code> (tests → package → smoke test → confirm → deploy → health) and <code>cleanup.sh</code></td><td>Show the CloudShell deploy output / the runbook</td><td>CloudFormation → <code>enterpriseos-dev</code> → <b>CREATE_COMPLETE</b> → Resources tab; Template tab</td></tr>
+  <tr><td>CI/CD + testing</td><td>GitHub Actions: tests, audit, package smoke test, cfn-lint, ShellCheck, secret scan; deploy is manual only</td><td>On the laptop: <code>npm test</code> → 56 pass in ≈5 s</td><td>GitHub → repo → Actions (green runs)</td></tr>
+  <tr><td>Cost control</td><td>No NAT/ALB/EC2/RDS; throttling; 7-day logs; budget cap; cleanup</td><td>—</td><td>Academy lab bar: "Used $0.0x of $40"; <code>docs/cost-analysis.md</code></td></tr>
+</table>
+
+<h1 class="section">The 6-minute demo script (who says what)</h1>
+<table class="script"><colgroup><col class="a"><col class="b"><col class="c"><col class="d"></colgroup>
+  <thead><tr><th>Time</th><th>Speaker</th><th>Do this</th><th>Say this</th></tr></thead>
+  <tr><td>0:00</td><td>Member 1</td><td>Architecture diagram (PDF or slide 3)</td><td>The 30-second pitch. "Solid lines are deployed and verified; the dashed Function URL is our fallback."</td></tr>
+  <tr><td>0:45</td><td>Member 1</td><td>Open the live URL, then <code>/health</code></td><td>"This is running on Lambda in us-east-1, behind API Gateway over HTTPS."</td></tr>
+  <tr><td>1:30</td><td>Member 2</td><td>Log in as employee (no Approve buttons; Audit trail refused), then as manager → Leave center → Approve</td><td>"Roles and tenant isolation are enforced on the server. Approving leave writes the audit row and also publishes an event."</td></tr>
+  <tr><td>2:30</td><td>Member 2</td><td>CloudWatch → worker log group → <code>domain_event_processed</code>; SQS monitoring</td><td>"The worker Lambda was triggered by SQS, not by us. Failures retry 3 times, then go to the dead-letter queue, which raises an alarm."</td></tr>
+  <tr><td>3:30</td><td>Member 3</td><td>Parameter Store (SecureString) → Lambda env vars → Alarms (4 OK)</td><td>"Secrets are never in code or configuration. Everything is monitored."</td></tr>
+  <tr><td>4:30</td><td>Member 3</td><td>CloudFormation → Resources tab; show <code>template.yaml</code></td><td>"All 21 resources come from one template: one command to create, one to delete."</td></tr>
+  <tr><td>5:15</td><td>Member 1</td><td><code>npm test</code> on the laptop; GitHub Actions</td><td>"56 tests, including Lambda end-to-end tests; CI on every push. Total cost: a few cents of lab credit, ₹0 personally."</td></tr>
+</table>
+<p>Tip: open these console tabs <b>before</b> 8:00 so nothing has to load during the demo: the app, <code>/health</code>, Lambda functions, API Gateway stage, SQS queue, worker log group, Parameter Store, CloudWatch Alarms, CloudFormation stack.</p>
+
+<div class="two p-break">
+<div>
+<h1 class="section">Likely questions: short answers</h1>
+<ul>
+  <li><b>Why Lambda?</b> No idle cost, auto-scaling, no servers to patch.</li>
+  <li><b>How does Express run on Lambda?</b> Lambda gets JSON events; our bridge starts Express on 127.0.0.1 and replays each event as a real HTTP request (≈1 ms overhead, no new dependency).</li>
+  <li><b>Cold start?</b> First request in a new container: ≈0.75 s locally (load secrets, start app, seed demo data); warm ≈1 ms.</li>
+  <li><b>Why SQS and SNS?</b> SQS = durable queue with retries/DLQ for one consumer; SNS = fan-out to many subscribers.</li>
+  <li><b>Duplicates?</b> At-least-once delivery; every event has a UUID for idempotent consumers (DynamoDB table is future work).</li>
+  <li><b>HTTP API vs REST API?</b> Cheaper, lower latency, we don't need REST-only features.</li>
+  <li><b>Where's the database?</b> Demo mode keeps synthetic data in memory (a managed DB bills hourly). Same code takes a PostgreSQL URL from Parameter Store; RDS is future scope.</li>
+  <li><b>Least privilege?</b> Template creates scoped roles (no wildcards, tested); the Academy sandbox only allows LabRole.</li>
+  <li><b>How did you control cost?</b> Serverless only, no free-tier assumptions, per-resource estimate, throttling, 7-day logs, $2 cap, cleanup script, a test that fails if paid resources appear.</li>
+  <li><b>What went wrong?</b> The first real deploy found 2 bugs (empty SAM parameter; SQS policy naming two queues). CloudFormation rolled back cleanly; we fixed, added a test and redeployed.</li>
+</ul>
+</div>
+<div>
+<h1 class="section">Tomorrow 7:00 am: redeploy</h1>
+<p>Full steps with troubleshooting: <code>docs/demo-day-runbook.md</code></p>
+<ol>
+  <li>AWS Academy → Cloud Developing → Sandbox → <b>Start Lab</b> → green → <b>AWS</b> → region us-east-1 → CloudShell.</li>
+  <li>Upload <code>dist/enterpriseos-aws-cloudshell.zip</code>.</li>
+  <li><code>export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1</code></li>
+  <li><code>unzip -q enterpriseos-aws-cloudshell.zip &amp;&amp; cd EnterpriseOS-AWS-Cloud &amp;&amp; npm ci</code></li>
+  <li><code>STAGE=dev bash scripts/aws/put-parameters.sh</code></li>
+  <li><code>CONFIRM_COST_CHECKLIST=yes STAGE=dev FRONT_DOOR=HttpApi SKIP_TESTS=yes bash scripts/aws/deploy.sh</code> → <code>deploy</code> → <code>y</code></li>
+  <li>Copy the <b>Application URL</b>; log in; approve a leave once so the worker log exists before the demo.</li>
+</ol>
+<p><b>Demo accounts</b> (synthetic, password <code>Demo@12345</code>): <code>admin@demo.com</code>, <code>manager@demo.com</code>, <code>employee@demo.com</code>.</p>
+
+<h1 class="section">After the evaluation: cleanup</h1>
+<ol>
+  <li>In CloudShell: <code>STAGE=dev DELETE_PARAMETERS=yes DELETE_SAM_BUCKET=yes bash scripts/aws/cleanup.sh</code> → type <code>enterpriseos-dev</code> → wait for <b>"Cleanup verified"</b>.</li>
+  <li>Then click <b>End Lab</b>.</li>
+</ol>
+<div class="warn"><b>Why both?</b> The sandbox deletes everything when the session timer reaches 0:00, but credits are used until then. <code>cleanup.sh</code> stops usage immediately and <i>verifies</i> nothing is left. Your personal AWS account has nothing deployed: never click "Upgrade" there, and keep AutoPay off.</div>
+</div>
+</div>
+</body></html>
