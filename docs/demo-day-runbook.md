@@ -79,7 +79,7 @@ CONFIRM_COST_CHECKLIST=yes STAGE=dev FRONT_DOOR=HttpApi bash scripts/aws/deploy.
 ## After the evaluation – clean up (3 min)
 
 ```bash
-STAGE=dev DELETE_PARAMETERS=yes DELETE_SAM_BUCKET=yes bash scripts/aws/cleanup.sh
+STAGE=dev DELETE_PARAMETERS=yes bash scripts/aws/cleanup.sh
 ```
 
 Type the stack name when asked; it ends with "Cleanup verified". (The sandbox would delete everything at
@@ -95,4 +95,4 @@ the end of the session anyway; this makes it immediate and verified.)
 | `/health` 503 after deploy | `JWT_SECRET` missing: rerun `put-parameters.sh`, then call the URL again |
 | Stack in `ROLLBACK_COMPLETE` | Run `cleanup.sh`, then deploy again |
 | Lab session ended | Everything was deleted: Start Lab again and repeat from 7:05 (≈ 15 min) |
-| AWS completely unavailable | Local demo: `npm run dev` → http://localhost:4000, then show `infrastructure/template.yaml`, the 56 passing tests (`npm test`) and the GitHub Actions runs |
+| AWS completely unavailable | Local demo: `npm run dev` → http://localhost:4000, then show `infrastructure/template.yaml`, the 59 passing tests (`npm test`) and the GitHub Actions runs |

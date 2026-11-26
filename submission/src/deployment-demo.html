@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>EnterpriseOS on AWS - Cloud Deployment and Demonstration</title>
+<style><!--STYLE--></style>
+<style>
+  @page { size: A4; margin: 1.9cm 2.1cm; }
+  body { font-size: 11.2pt; line-height: 1.4; }
+  p { text-align: justify; margin: 0 0 6pt; }
+  h1.chap { font-size: 13.5pt; text-transform: uppercase; text-decoration: none; text-align: left; margin: 12pt 0 6pt; padding-bottom: 2pt; border-bottom: 1.2px solid #000; }
+  h2 { font-size: 12pt; margin: 8pt 0 4pt; }
+  ul, ol { padding-left: 20pt; margin: 0 0 7pt; }
+  li { margin-bottom: 2.5pt; }
+  table { font-size: 10.4pt; margin: 4pt 0 8pt; }
+  th, td { padding: 3pt 6pt; border: 0.8px solid #444; }
+  th { background: #e9e9e9; }
+  .head { text-align: center; padding-bottom: 7pt; margin-bottom: 8pt; border-bottom: 2px solid #000; }
+  .head .course { font-size: 12pt; } .head .title { font-size: 19pt; font-weight: bold; } .head .meta { font-size: 10.6pt; }
+  .keyline { border-left: 3px solid #000; background: #f3f3f3; padding: 5pt 9pt; margin: 4pt 0 8pt; }
+  figure { margin: 6pt 0 8pt; } figcaption { font-size: 10pt; }
+  .pg { break-after: page; } .pg:last-child { break-after: auto; }
+</style></head><body>
+<section class="pg">
+<div class="head">
+  <div class="course"><b>UCS531</b> – <i>Cloud Computing</i> · Item 3: Cloud Deployment with Demonstration</div>
+  <div class="title">EnterpriseOS on AWS</div>
+  <div class="meta">Avik Khetarpal (1024031066) · Shashwat Tewari (1024031065) · Humza Ali Choudhri (1024031070) · Submitted to: Ms. Ishani Rana</div>
+</div>
+
+<h1 class="chap">1. Deployment Summary</h1>
+<div class="keyline">EnterpriseOS was deployed to <b>AWS</b> in the <b>AWS Academy Cloud Developing sandbox</b> (region us-east-1) with a single command from <b>AWS CloudShell</b>. The CloudFormation stack <code>enterpriseos-dev</code> reached <b>CREATE_COMPLETE</b> with 21 resources, the public HTTPS endpoint answered <b>/health → HTTP 200</b>, and a leave approval on the live site was processed by the worker Lambda through SQS. The live application is demonstrated during the lab evaluation.</div>
+
+<h1 class="chap">2. What Was Deployed</h1>
+<table>
+  <thead><tr><th style="width:30%">AWS service</th><th>Deployed resources</th></tr></thead>
+  <tr><td>Amazon API Gateway</td><td>HTTP API <code>enterpriseos-dev-http-api</code>, <code>$default</code> route and stage (10 req/s, burst 20), Lambda integration and invoke permission</td></tr>
+  <tr><td>AWS Lambda</td><td><code>enterpriseos-dev-api</code> (web app and API) and <code>enterpriseos-dev-worker</code> (event processor) with its SQS trigger</td></tr>
+  <tr><td>Amazon SQS</td><td><code>enterpriseos-dev-events</code> and dead-letter queue <code>enterpriseos-dev-events-dlq</code>, each with a TLS-only policy</td></tr>
+  <tr><td>Amazon SNS</td><td><code>enterpriseos-dev-notifications</code> and <code>enterpriseos-dev-ops-alerts</code> topics</td></tr>
+  <tr><td>Systems Manager + KMS</td><td>SecureString parameter <code>/enterpriseos/dev/JWT_SECRET</code></td></tr>
+  <tr><td>Amazon CloudWatch</td><td>3 log groups (7-day retention) and 4 alarms</td></tr>
+  <tr><td>IAM, CloudFormation, S3</td><td>LabRole execution role; stack <code>enterpriseos-dev</code>; SAM deployment bucket</td></tr>
+</table>
+
+<h1 class="chap">3. How It Was Deployed</h1>
+<ol>
+  <li>Started the AWS Academy sandbox and opened AWS CloudShell in us-east-1.</li>
+  <li>Cloned the public repository and installed dependencies with <code>npm ci</code>.</li>
+  <li><code>put-parameters.sh</code>: generated the signing secret and stored it encrypted in Parameter Store.</li>
+  <li><code>preflight.sh</code>: 14 read-only checks passed (region, Academy role, SAM CLI, LabRole, secret, service access).</li>
+  <li><code>deploy.sh</code>: packaged and smoke-tested the Lambda code, then SAM/CloudFormation created the stack and the script checked <code>/health</code>.</li>
+</ol>
+<p>The first attempt exposed an SQS policy error; CloudFormation rolled back automatically, the template was fixed and tested, and the redeployment succeeded.</p>
+</section>
+
+<section class="pg">
+<h1 class="chap">4. Verification Evidence</h1>
+<table>
+  <thead><tr><th>Check on the live deployment</th><th style="width:30%">Result</th></tr></thead>
+  <tr><td>CloudFormation stack status</td><td>CREATE_COMPLETE</td></tr>
+  <tr><td><code>GET /health</code> from outside AWS (3 requests)</td><td>HTTP 200, status "ok"</td></tr>
+  <tr><td>Security headers (HSTS, X-Frame-Options, X-Content-Type-Options)</td><td>Present</td></tr>
+  <tr><td>Protected API without a login token</td><td>HTTP 401 (refused)</td></tr>
+  <tr><td>Leave approval → SQS → worker Lambda</td><td>Processed (Figure 1)</td></tr>
+  <tr><td>CloudWatch alarms</td><td>4 alarms in OK state</td></tr>
+</table>
+<figure><img src="../../report/figures/aws-worker-log.png" alt="CloudWatch log of the worker Lambda"><figcaption>Figure 1: CloudWatch log of the worker Lambda, started by SQS after a leave approval on the live site (account ID removed)</figcaption></figure>
+
+<h1 class="chap">5. Live Demonstration Plan</h1>
+<ol>
+  <li>Open the live HTTPS application and its <code>/health</code> endpoint.</li>
+  <li>Sign in as an employee (no approval rights), then as a manager, and approve a leave request.</li>
+  <li>Show the worker Lambda's CloudWatch log entry for that approval and the SQS queue metrics.</li>
+  <li>Show each service in the AWS console: API Gateway, Lambda, SQS, SNS, Parameter Store, CloudWatch alarms, IAM role and the CloudFormation stack.</li>
+</ol>
+<p><b>Note:</b> the AWS Academy sandbox deletes all resources when its session ends, so the stack is re-created with the same command before each demonstration, and <code>cleanup.sh</code> removes it afterwards. Full evidence: <code>docs/evidence/aws-deployment-2026-11-26.txt</code> in the repository.</p>
+</section>
+</body></html>

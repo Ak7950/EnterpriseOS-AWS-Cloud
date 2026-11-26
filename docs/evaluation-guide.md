@@ -40,7 +40,7 @@ so it is re-created before each demonstration (`docs/demo-day-runbook.md`).
    attempts they go to a dead-letter queue, which raises a CloudWatch alarm.
 6. **Observability.** JSON logs with request IDs, 7-day retention, alarms on Lambda errors,
    HTTP 5xx and DLQ depth, and an optional dashboard.
-7. **IaC and CI/CD.** One SAM template; GitHub Actions run 56 tests, `npm audit`, a Lambda
+7. **IaC and CI/CD.** One SAM template; GitHub Actions run 59 tests, `npm audit`, a Lambda
    package smoke test, `cfn-lint`, ShellCheck and a secret scan on every push. Deployment is
    manual and gated by a cost checklist.
 8. **Cost.** No servers, NAT gateways, load balancers or managed databases. A demo session is
@@ -133,7 +133,7 @@ minutes and deletable in one command, which is exactly what makes cost control r
 
 **Fallback if AWS is unavailable (local only):**
 
-1. `npm test` → show 56 passing tests; point out the Lambda end-to-end suite.
+1. `npm test` → show 59 passing tests; point out the Lambda end-to-end suite.
 2. `npm run package:lambda && npm run smoke:lambda` → the built artifact works like Lambda.
 3. `npm run dev` → log in as `manager@demo.com` / `Demo@12345`; approve Rohan's leave; open
    Notifications/Audit as admin.

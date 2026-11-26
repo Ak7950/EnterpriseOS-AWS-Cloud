@@ -70,7 +70,7 @@ Open <http://localhost:4000>. Demo accounts (synthetic data, password `Demo@1234
 
 | Command | Purpose |
 |---|---|
-| `npm test` | All 56 tests (original + cloud) |
+| `npm test` | All 59 tests (original + cloud) |
 | `npm run package:lambda` | Build `dist/lambda` (runtime files and production dependencies only) |
 | `npm run smoke:lambda` | Invoke the built package exactly as Lambda would |
 | `npm run check:secrets` | Secret scan of tracked/staged files |

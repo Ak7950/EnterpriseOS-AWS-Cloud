@@ -28,7 +28,8 @@
 | Data in transit to SQS | Queue policy denies any request without TLS (`aws:SecureTransport=false`) | test "queues are encrypted, TLS-only…" |
 | Data at rest | SQS SSE (SQS-managed keys), SecureStrings with `aws/ssm`, CloudWatch Logs encrypted by default | template |
 | PII in events, logs and e-mails | Events carry IDs, type, status and title only; SNS summaries contain IDs, no names or e-mails; access logs omit query strings | worker test asserts no `@` in messages |
-| Denial-of-wallet | HTTP API stage throttling, max 100 rps enforced by parameter constraints, optional reserved concurrency, alarms, cleanup script | `cost-analysis.md` §4 |
+| Deploying into a personal, billable account by mistake | `preflight.sh` fails closed: only the AWS Academy lab role passes; any other identity is refused unless `ALLOW_NON_ACADEMY_ACCOUNT=yes` is set on purpose | `test/scripts.test.js` |
+| Denial-of-wallet | HTTP API stage throttling, max 100 rps enforced by parameter constraints, 10 s API timeout, worker capped at 2 concurrent copies, optional reserved concurrency, alarms, cleanup script | `cost-analysis.md` §4 |
 | Unnecessary public access | No S3 bucket is public; SAM's artifact bucket is private; only the app endpoint is public | template review |
 | Supply chain | One new **dev-only** dependency (`yaml`, zero dependencies); runtime adds none (AWS SDK v3 is provided by the Lambda runtime); `npm audit` in CI | `docs/evidence/npm-audit.txt` |
 | Committed secrets | `scripts/check-secrets.sh` in CI (AWS keys, private keys, tokens, credentialed DB URLs, `.env` files); canary-tested | `docs/evidence/package-smoke-and-secret-scan.txt` |

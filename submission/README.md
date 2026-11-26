@@ -4,8 +4,8 @@
 |---|---|---|
 | 1 | Project proposal (problem statement and objectives) | `1-Project-Proposal.pdf` |
 | 2 | System architecture diagram | `2-System-Architecture.pdf` / `.png` |
-| 3 | Cloud deployment with demonstration | Live in the lab (AWS Academy sandbox), evidence in `5-Project-Report.pdf` and `docs/evidence/` |
-| 4 | Source code with README | This repository (`README.md` at the root) |
+| 3 | Cloud deployment with demonstration | `3-Cloud-Deployment-and-Demonstration.pdf` (plus the live demo) |
+| 4 | Source code with README | `4-Source-Code-GitHub-and-README.pdf` (repository link) and the root `README.md` |
 | 5 | Project report with screenshots (max 5 pages) | `5-Project-Report.pdf` |
 
 `Demo-Cheat-Sheet.pdf` (3 pages, not for the LMS) maps every feature to how to show it live and where it is in the AWS console, with the 6-minute demo script, short viva answers, tomorrow's redeploy steps and cleanup.

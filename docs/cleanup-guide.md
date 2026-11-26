@@ -20,12 +20,16 @@ no function, queue or stack remains.
 Optional extras:
 
 ```bash
-STAGE=dev DELETE_PARAMETERS=yes DELETE_SAM_BUCKET=yes bash scripts/aws/cleanup.sh
+STAGE=dev DELETE_PARAMETERS=yes bash scripts/aws/cleanup.sh
 ```
 
 * `DELETE_PARAMETERS=yes` — deletes `/enterpriseos/dev/*` SecureStrings.
-* `DELETE_SAM_BUCKET=yes` — empties the versioned SAM artifact bucket and deletes the
-  `aws-sam-cli-managed-default` stack. Skip this if other SAM projects in the lab use it.
+* `DELETE_SAM_BUCKET=yes` — **not used by default.** It empties the versioned SAM artifact bucket and
+  deletes the `aws-sam-cli-managed-default` stack, which other SAM projects in the same account and
+  region may share. Use it only when you are sure the bucket belongs to EnterpriseOS alone. (In the
+  Academy sandbox it is removed with everything else when the session ends.)
+* What the script **verifies** afterwards: the stack is gone, both Lambda functions are gone, and no
+  `enterpriseos-dev-events*` queue remains. Log groups are deleted explicitly.
 
 ## Manual verification (console)
 

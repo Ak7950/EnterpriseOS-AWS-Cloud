@@ -18,9 +18,18 @@ check require_allowed_region && pass "Region ${AWS_REGION} is permitted"
 if aws sts get-caller-identity >/dev/null 2>&1; then
   pass "AWS credentials are valid (account $(masked_account))"
   arn="$(aws sts get-caller-identity --query Arn --output text)"
+  # Fail closed: only the AWS Academy lab role observed in our sandbox
+  # (assumed-role/voclabs/...) passes. Any other identity could be a personal,
+  # billable account, so it blocks deployment unless the operator explicitly
+  # opts in (e.g. a verified AWS Free plan account).
   case "${arn}" in
-    *assumed-role/voclabs/*|*assumed-role/vocstartsoft/*) pass "Caller is an AWS Academy lab role" ;;
-    *) note "Caller is not a recognised AWS Academy lab role - confirm this is NOT a personal billable account." ;;
+    *:assumed-role/voclabs/*) pass "Caller is an AWS Academy lab role" ;;
+    *)
+      if [[ "${ALLOW_NON_ACADEMY_ACCOUNT:-}" == "yes" ]]; then
+        note "Caller is NOT an AWS Academy lab role; continuing only because ALLOW_NON_ACADEMY_ACCOUNT=yes (make sure the account cannot bill you)."
+      else
+        miss "Caller is not an AWS Academy lab role - refusing (could be a personal billable account). Set ALLOW_NON_ACADEMY_ACCOUNT=yes only for a verified no-charge account."; status=1
+      fi ;;
   esac
 else
   miss "No valid AWS credentials (Learner Lab session may have expired - restart the lab)."; status=1

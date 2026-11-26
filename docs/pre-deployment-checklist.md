@@ -1,8 +1,9 @@
-# Pre-deployment cost and safety checklist
+# Pre-deployment cost and safety checklist (reusable template)
 
-Every item must be ticked **before** running `scripts/aws/deploy.sh` (or the manual GitHub
-workflow). If any item cannot be ticked, do not deploy — the project remains *Implemented
-Locally*, which is a valid outcome.
+Use this **for every new sandbox session**. Ticked boxes record what was verified once on
+25–26 Nov 2026 and still holds; unticked boxes must be checked again in each session before
+running `scripts/aws/deploy.sh`. The 26 Nov 2026 deployment passed all items
+(see `evidence/aws-deployment-2026-11-26.txt`).
 
 ## Account and money
 

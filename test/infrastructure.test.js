@@ -82,6 +82,17 @@ test('public entry point is throttled and the worker reports partial batch failu
   assert.deepEqual(sqs.FunctionResponseTypes, ['ReportBatchItemFailures']);
 });
 
+test('queue visibility timeout follows AWS guidance and worker concurrency is capped', () => {
+  const worker = template.Resources.WorkerFunction.Properties;
+  const event = worker.Events.DomainEvents.Properties;
+  const visibility = template.Resources.EventQueue.Properties.VisibilityTimeout;
+  // AWS: visibility timeout >= 6 x function timeout + MaximumBatchingWindowInSeconds.
+  assert.ok(visibility >= 6 * worker.Timeout + (event.MaximumBatchingWindowInSeconds || 0),
+    `visibility ${visibility}s is below 6 x ${worker.Timeout}s + ${event.MaximumBatchingWindowInSeconds}s`);
+  assert.ok(event.ScalingConfig?.MaximumConcurrency >= 2 && event.ScalingConfig.MaximumConcurrency <= 5,
+    'SQS event source must cap worker concurrency (2..5)');
+});
+
 test('optional billed features are off by default and Academy-compatible defaults are set', () => {
   assert.equal(template.Parameters.EnableDashboard.Default, 'false');
   assert.equal(template.Parameters.DatabaseMode.Default, 'ephemeral-demo');

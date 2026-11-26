@@ -38,7 +38,7 @@ the KMS/SecureString test). **Update 26 Nov 2026:** both in-session checks passe
 |---|---|
 | Project directory | `~/Desktop/EnterpriseOS-AWS-Cloud`, Git root, branch `main` |
 | Git remote | `origin https://github.com/Ak7950/EnterpriseOS-AWS-Cloud.git` only — the original `EnterpriseOS` repo is **not** a remote |
-| GitHub repo | Exists; anonymous request returns 404 while the owner's stored credentials can read it → **private** |
+| GitHub repo | On 25 Nov 2026 it was private (anonymous 404). **Addendum 27 Nov 2026:** made **public** by the owner for instructor review; anonymous access verified (HTTP 200) and CI runs visible |
 | Original project on disk | No `~/Desktop/EnterpriseOS` directory present; nothing outside this repository was touched |
 | Node.js / npm | v24.13.0 / 11.6.2 |
 | AWS / SAM / Docker / gh CLIs | Not installed |

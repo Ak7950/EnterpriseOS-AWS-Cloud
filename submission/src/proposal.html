@@ -14,14 +14,14 @@
   <div class="course"><b>UCS531</b> – <i>Cloud Computing</i> · 2026-2027 · Project Proposal</div>
   <div class="title">EnterpriseOS on AWS</div>
   <div class="subtitle">A Cost-Safe Serverless and Event-Driven Cloud Architecture for Workforce Management</div>
-  <div class="meta">Avik Khetarpal (1024031066) · Humza Ali Choudhri (1024031070) · Shashwat Tewari (1024031065)<br>
+  <div class="meta">Avik Khetarpal (1024031066) · Shashwat Tewari (1024031065) · Humza Ali Choudhri (1024031070)<br>
   B.Tech 3rd Year Computer Engineering, Thapar Institute of Engineering and Technology · Lab Faculty: Ms. Ishani Rana</div>
 </div>
 
 <h1 class="section">Problem Statement</h1>
 <p>EnterpriseOS is our workforce-management web application (employees, departments, attendance, leave approvals, projects, tasks, notifications and an audit trail), built with Node.js, Express and PostgreSQL in the Software Engineering course. It works, but it runs on a hosting platform that hides the infrastructure, so it does not show how a real cloud system is designed, secured, monitored and costed.</p>
 <div class="note"><i>How can an existing web application be moved to Amazon Web Services so that it demonstrates core cloud-computing concepts (serverless compute, managed messaging, secret management, identity and access management, monitoring and infrastructure as code) without changing its business logic and without any personal expenditure?</i></div>
-<p>Constraints: zero personal cost (no paid plans; any AWS credit used must be estimated and capped), the restrictions of the AWS Academy sandbox and AWS Free plan accounts, and full preservation of every existing feature and test.</p>
+<p>Constraints: zero personal cost (no paid plans; any AWS credit used must be estimated and capped), the restrictions of the AWS Academy Cloud Developing sandbox, and full preservation of every existing feature and test.</p>
 
 <h1 class="section">Objectives</h1>
 <ol>
@@ -35,7 +35,7 @@
   <li>Estimate and cap cloud cost so that personal expenditure stays at <b>₹0</b>.</li>
 </ol>
 
-<h1 class="section">Proposed Solution</h1>
+<h1 class="section" style="break-before: page;">Proposed Solution</h1>
 <table>
   <thead><tr><th style="width:30%">Layer</th><th>AWS service and approach</th></tr></thead>
   <tr><td>Compute</td><td>AWS Lambda runs the unchanged Express app through a small, dependency-free loopback bridge</td></tr>

@@ -60,8 +60,8 @@
   <div class="inst">Thapar Institute of Engineering and Technology</div>
   <div class="names">
     Avik Khetarpal (1024031066)<br>
-    Humza Ali Choudhri (1024031070)<br>
-    Shashwat Tewari (1024031065)
+    Shashwat Tewari (1024031065)<br>
+    Humza Ali Choudhri (1024031070)
   </div>
   <div class="submitted"><b>Submitted to</b>: Dr. Chinu Dhir</div>
 </section>
@@ -106,7 +106,7 @@
   <h1 class="section" id="abstract">Abstract</h1>
   <p>EnterpriseOS is a multi-tenant workforce-management web application that brings employee and department records, attendance, leave approvals, projects, tasks, notifications and an audit trail into one workspace. It was originally built for our Software Engineering course as a Node.js/Express modular monolith backed by PostgreSQL and hosted on Vercel.</p>
   <p>This project re-platforms the same application onto Amazon Web Services (AWS) to apply core cloud-computing concepts to a real system. Two constraints guided every decision: <b>zero personal expenditure</b>, and <b>no change to the application's business logic</b>. The unchanged Express application runs on <b>AWS Lambda</b> behind an <b>Amazon API Gateway HTTP API</b>, through a small, dependency-free adapter we wrote. Secrets are kept in <b>AWS Systems Manager Parameter Store</b>. Leave decisions and task assignments are published as events to <b>Amazon SQS</b> and processed asynchronously by a second Lambda function that sends notifications through <b>Amazon SNS</b>. Failed messages are retried and then moved to a dead-letter queue. <b>Amazon CloudWatch</b> provides structured logs and alarms, and the whole environment is defined in one <b>AWS SAM / CloudFormation</b> template that can be created or deleted with a single command.</p>
-  <p>The implementation is verified by <b>56 automated tests, all passing</b> (21 original and 35 new), template, script and workflow linters with no findings, and a dependency audit with no known vulnerabilities. The new tests also exposed and fixed two pre-existing defects. A cost model estimates about <b>US$0.01–0.03 of AWS credit per demonstration session</b>, and the target AWS account runs on the AWS Free plan (US$120 credits, US$0 spent) with a zero-spend budget alert. The stack was deployed with a single command to the AWS Academy Cloud Developing sandbox on 26 November 2026 and verified end to end: the public HTTPS endpoint returned healthy responses, and a leave approval was processed asynchronously by the worker Lambda through SQS. This report describes the methodology, presents the results and distinguishes clearly between what is implemented, what is verified and what is deployed.</p>
+  <p>The implementation is verified by <b>59 automated tests, all passing</b> (21 original and 38 new), template, script and workflow linters with no findings, and a dependency audit with no known vulnerabilities. The new tests also exposed and fixed two pre-existing defects. A cost model estimates about <b>US$0.01–0.03 of AWS credit per demonstration session</b>, and the target AWS account runs on the AWS Free plan (US$120 credits, US$0 spent) with a zero-spend budget alert. The stack was deployed with a single command to the AWS Academy Cloud Developing sandbox on 26 November 2026 and verified end to end: the public HTTPS endpoint returned healthy responses, and a leave approval was processed asynchronously by the worker Lambda through SQS. This report describes the methodology, presents the results and distinguishes clearly between what is implemented, what is verified and what is deployed.</p>
   <p><b>Keywords:</b> Cloud computing, serverless, AWS Lambda, API Gateway, Amazon SQS, event-driven architecture, infrastructure as code, cost optimisation.</p>
 </section>
 
@@ -197,7 +197,7 @@
     <li><b>Architecture design:</b> chose services by need and idle cost, and rejected those that bill by the hour.</li>
     <li><b>Implementation:</b> added the Lambda adapter, event pipeline, logging and health check, changing existing code as little as possible.</li>
     <li><b>Infrastructure as code:</b> wrote one parameterised SAM template, deployment scripts and CI workflows.</li>
-    <li><b>Verification:</b> added 35 new tests, ran linters, a secret scan, a package smoke test and latency measurements.</li>
+    <li><b>Verification:</b> added 38 new tests, ran linters, a secret scan, a package smoke test and latency measurements.</li>
     <li><b>Documentation:</b> recorded decisions, costs, limitations and the exact deployment status.</li>
   </ol>
 
@@ -374,15 +374,16 @@
 
 <section>
   <h2 id="results-tests">4.2 Testing Results</h2>
-  <p>The original suite of 21 tests passed before any change. After the cloud work, all 56 tests pass. The end-to-end tests send API Gateway-shaped events through the real Lambda handler and the unchanged application, in the same configuration as the cloud stack.</p>
+  <p>The original suite of 21 tests passed before any change. After the cloud work, all 59 tests pass. The end-to-end tests send API Gateway-shaped events through the real Lambda handler and the unchanged application, in the same configuration as the cloud stack.</p>
   <table>
     <thead><tr><th>Test suite</th><th style="width:14%">Tests</th><th style="width:14%">Result</th></tr></thead>
     <tr><td>Original suites: authentication, tenant boundaries, administrator bootstrap, start-up, India time</td><td>21</td><td>All passed</td></tr>
     <tr><td>Lambda end-to-end: routes, sign-in, CORS, security headers, rate limiting, events, manager scope</td><td>11</td><td>All passed</td></tr>
     <tr><td>HTTP bridge, Parameter Store loader, event publisher, SQS worker, logger</td><td>12</td><td>All passed</td></tr>
     <tr><td>Database-mode guard, health check, deterministic demo IDs</td><td>4</td><td>All passed</td></tr>
-    <tr><td>Infrastructure guard-rails: no paid resources, no wildcard IAM, no secrets in variables, manual-only deployment</td><td>8</td><td>All passed</td></tr>
-    <tr><td><b>Total</b></td><td><b>56</b></td><td><b>56 passed, 0 failed</b></td></tr>
+    <tr><td>Infrastructure guard-rails: no paid resources, no wildcard IAM, no secrets in variables, queue timing, worker concurrency, manual-only deployment</td><td>9</td><td>All passed</td></tr>
+    <tr><td>Deployment safety: pre-flight refuses non-Academy AWS accounts</td><td>2</td><td>All passed</td></tr>
+    <tr><td><b>Total</b></td><td><b>59</b></td><td><b>59 passed, 0 failed</b></td></tr>
   </table>
 
   <h2 id="results-quality">4.3 Security and Quality Checks</h2>
@@ -435,7 +436,7 @@
   <h1 class="section" id="conclusion">Conclusion and Future Scope</h1>
   <h2>5.1 Conclusion</h2>
   <p>EnterpriseOS was successfully re-platformed onto a serverless, event-driven AWS architecture without changing its business logic and without any personal expenditure. The project applies the main ideas of cloud computing to a real application: pay-per-use compute with AWS Lambda, a managed HTTPS front door with API Gateway, reliable background processing with SQS, a dead-letter queue and SNS, encrypted secret storage with Parameter Store, least-privilege IAM, monitoring with CloudWatch, and a reproducible environment defined as code.</p>
-  <p>All 56 automated tests pass, the template and scripts pass their linters, the dependencies have no known vulnerabilities, and two pre-existing defects were found and fixed along the way. Cost was treated as a design requirement: the architecture avoids every hourly-billed component, and a demonstration session is estimated to cost only a few cents of credit. Throughout, we separated what is implemented, verified and deployed, so that every claim in this report is backed by evidence.</p>
+  <p>All 59 automated tests pass, the template and scripts pass their linters, the dependencies have no known vulnerabilities, and two pre-existing defects were found and fixed along the way. Cost was treated as a design requirement: the architecture avoids every hourly-billed component, and a demonstration session is estimated to cost only a few cents of credit. Throughout, we separated what is implemented, verified and deployed, so that every claim in this report is backed by evidence.</p>
   <h2>5.2 Current Limitations</h2>
   <ul>
     <li>In the zero-cost demonstration mode, data lives in each Lambda container's memory, so changes are not shared between containers and reset on restart.</li>

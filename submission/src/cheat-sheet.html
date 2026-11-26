@@ -32,7 +32,7 @@
 <div class="pitch"><b>30-second pitch:</b> "We took our Software Engineering app, EnterpriseOS, and moved it to AWS <i>without changing its business logic</i> and with <i>zero personal cost</i>. The same Express app runs on <b>Lambda behind API Gateway</b>; secrets are in <b>Parameter Store</b>; leave approvals and task assignments become <b>events in SQS</b> that a <b>worker Lambda</b> processes and sends to <b>SNS</b>, with retries and a <b>dead-letter queue</b>; <b>CloudWatch</b> logs and alarms watch everything; and the whole stack is <b>one SAM template</b>, deployed with one command and deleted with one command."</div>
 
 <div class="nums">
-  <div><b>56/56</b>tests pass</div>
+  <div><b>59/59</b>tests pass</div>
   <div><b>0</b>vulnerabilities</div>
   <div><b>21</b>AWS resources, 1 template</div>
   <div><b>~10 min</b>deploy</div>
@@ -53,7 +53,7 @@
   <tr><td>Security hardening</td><td>HTTPS + HSTS, CSP, X-Frame-Options; TLS-only encrypted queues; spoof-proof login rate limit</td><td>Browser padlock; DevTools → Network → response headers</td><td>SQS → queue → Access policy (Deny if <code>aws:SecureTransport</code> false); Encryption: SSE-SQS</td></tr>
   <tr><td>IAM</td><td>Least-privilege roles in the template (no wildcards, tested); sandbox forces <code>LabRole</code></td><td>Open <code>infrastructure/template.yaml</code> → <code>ApiFunctionRole</code></td><td>Lambda → Configuration → Permissions → LabRole</td></tr>
   <tr><td>Infrastructure as code</td><td>One SAM template; <code>deploy.sh</code> (tests → package → smoke test → confirm → deploy → health) and <code>cleanup.sh</code></td><td>Show the CloudShell deploy output / the runbook</td><td>CloudFormation → <code>enterpriseos-dev</code> → <b>CREATE_COMPLETE</b> → Resources tab; Template tab</td></tr>
-  <tr><td>CI/CD + testing</td><td>GitHub Actions: tests, audit, package smoke test, cfn-lint, ShellCheck, secret scan; deploy is manual only</td><td>On the laptop: <code>npm test</code> → 56 pass in ≈5 s</td><td>GitHub → repo → Actions (green runs)</td></tr>
+  <tr><td>CI/CD + testing</td><td>GitHub Actions: tests, audit, package smoke test, cfn-lint, ShellCheck, secret scan; deploy is manual only</td><td>On the laptop: <code>npm test</code> → 59 pass in ≈5 s</td><td>GitHub → repo → Actions (green runs)</td></tr>
   <tr><td>Cost control</td><td>No NAT/ALB/EC2/RDS; throttling; 7-day logs; budget cap; cleanup</td><td>—</td><td>Academy lab bar: "Used $0.0x of $40"; <code>docs/cost-analysis.md</code></td></tr>
 </table>
 
@@ -66,7 +66,7 @@
   <tr><td>2:30</td><td>Member 2</td><td>CloudWatch → worker log group → <code>domain_event_processed</code>; SQS monitoring</td><td>"The worker Lambda was triggered by SQS, not by us. Failures retry 3 times, then go to the dead-letter queue, which raises an alarm."</td></tr>
   <tr><td>3:30</td><td>Member 3</td><td>Slides 4–11 (one per service), switching to its console tab: API Gateway, Lambda, SQS, SNS, Parameter Store, Alarms, IAM</td><td>For each service: "why we used it" from the slide, then show it live in its console tab (the "Show in demo" line on every slide).</td></tr>
   <tr><td>4:30</td><td>Member 3</td><td>Slide 11–12: CloudFormation → Resources tab, S3 bucket; how we deployed from CloudShell</td><td>"All 21 resources come from one template: one command to create, one to delete."</td></tr>
-  <tr><td>5:15</td><td>Member 1</td><td>Slides 13–14: live proof and conclusion; GitHub repo (public) and Actions</td><td>"Same app, now cloud-native, on 9 AWS services, built from one template. If asked: 56 automated tests and CI on every push; a few cents of lab credit, ₹0 personally."</td></tr>
+  <tr><td>5:15</td><td>Member 1</td><td>Slides 13–14: live proof and conclusion; GitHub repo (public) and Actions</td><td>"Same app, now cloud-native, on 9 AWS services, built from one template. If asked: 59 automated tests and CI on every push; a few cents of lab credit, ₹0 personally."</td></tr>
 </table>
 <p>Tip: open these console tabs <b>before</b> 8:00 so nothing has to load during the demo: the app, <code>/health</code>, Lambda functions, API Gateway stage, SQS queue, worker log group, Parameter Store, CloudWatch Alarms, CloudFormation stack.</p>
 
@@ -101,7 +101,7 @@
 
 <h1 class="section">After the evaluation: cleanup</h1>
 <ol>
-  <li>In CloudShell: <code>STAGE=dev DELETE_PARAMETERS=yes DELETE_SAM_BUCKET=yes bash scripts/aws/cleanup.sh</code> → type <code>enterpriseos-dev</code> → wait for <b>"Cleanup verified"</b>.</li>
+  <li>In CloudShell: <code>STAGE=dev DELETE_PARAMETERS=yes bash scripts/aws/cleanup.sh</code> → type <code>enterpriseos-dev</code> → wait for <b>"Cleanup verified"</b>.</li>
   <li>Then click <b>End Lab</b>.</li>
 </ol>
 <div class="warn"><b>Why both?</b> The sandbox deletes everything when the session timer reaches 0:00, but credits are used until then. <code>cleanup.sh</code> stops usage immediately and <i>verifies</i> nothing is left. Your personal AWS account has nothing deployed: never click "Upgrade" there, and keep AutoPay off.</div>

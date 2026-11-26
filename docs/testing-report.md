@@ -21,8 +21,9 @@ v24.13.0). Raw output is in [`evidence/`](evidence/).
 | `cloud-config.test.js` — DB mode guard, health endpoint, deterministic seed IDs | 4 | passed |
 | `cloud-units.test.js` — HTTP bridge, SSM loader, event publisher, SQS worker, logger | 12 | passed |
 | `lambda-api-handler.test.js` — end-to-end Lambda events through the real Express app | 11 | passed |
-| `infrastructure.test.js` — template and workflow guard-rails | 8 | passed |
-| **Total** | **56** | **56 passed, 0 failed** |
+| `infrastructure.test.js` — template and workflow guard-rails, queue timing and worker concurrency | 9 | passed |
+| `scripts.test.js` — pre-flight refuses non-Academy AWS identities (personal-spend guard) | 2 | passed |
+| **Total** | **59** | **59 passed, 0 failed** |
 
 Other validation:
 

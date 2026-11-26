@@ -161,7 +161,8 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub ${AWS::StackName}-events
-      VisibilityTimeout: 60
+      # AWS guidance: at least 6 x worker timeout (30 s) + batching window (5 s) = 185 s.
+      VisibilityTimeout: 185
       MessageRetentionPeriod: 345600
       SqsManagedSseEnabled: true
       RedrivePolicy:
@@ -289,7 +290,8 @@ Resources:
       Handler: aws/lambda/api-handler.handler
       Role: !If [CreateRoles, !GetAtt ApiFunctionRole.Arn, !Ref LambdaRoleArn]
       MemorySize: 512
-      Timeout: 20
+      # Requests finish in milliseconds; a short timeout bounds worst-case cost.
+      Timeout: 10
       ReservedConcurrentExecutions: !If [HasReservedConcurrency, !Ref ApiReservedConcurrency, !Ref AWS::NoValue]
       LoggingConfig:
         LogGroup: !Ref ApiLogGroup
@@ -331,6 +333,9 @@ Resources:
             BatchSize: 10
             MaximumBatchingWindowInSeconds: 5
             FunctionResponseTypes: [ReportBatchItemFailures]
+            # Caps how many worker copies SQS may run at once (cost and abuse guard; minimum is 2).
+            ScalingConfig:
+              MaximumConcurrency: 2
 
   # ---------------------------------------------------------------- Front door option A: API Gateway HTTP API
   HttpApi:

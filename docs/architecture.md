@@ -28,7 +28,7 @@ Solid lines = verified running (local machine / CI). This is **not** an AWS depl
 flowchart LR
   B[Browser SPA<br/>public/] -->|HTTPS in prod / HTTP locally| E[Express app<br/>server/index.js]
   E -->|pg| M[(pg-mem in-memory DB<br/>or local PostgreSQL)]
-  T[node --test<br/>56 tests] -->|Lambda v2 events| H[Lambda handler<br/>aws/lambda/api-handler.js]
+  T[node --test<br/>59 tests] -->|Lambda v2 events| H[Lambda handler<br/>aws/lambda/api-handler.js]
   H -->|loopback 127.0.0.1| E
   E -->|EVENT_TRANSPORT=memory| Q[(in-memory event list)]
   T -->|SQS-shaped records| W[Event worker<br/>aws/lambda/event-worker.js]

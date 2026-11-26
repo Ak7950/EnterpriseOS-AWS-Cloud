@@ -414,7 +414,7 @@ take.forEach(([h, d], i) => {
 text(s, "Next: managed PostgreSQL (RDS), CloudFront + WAF, Cognito sign-in, X-Ray tracing", { x: 0.6, y: 3.7, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
 text(s, "Thank you. Questions?", { x: 0.6, y: 4.1, w: 8.8, h: 0.55, fontSize: 26, bold: true, color: C.background1 });
 text(s, "github.com/Ak7950/EnterpriseOS-AWS-Cloud", { x: 0.6, y: 4.72, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
-s.addNotes("Close with the three takeaways. If asked about quality or cost: 56 automated tests pass, CI runs on every push, and the demo costs only a few cents of lab credit, with no personal spending.");
+s.addNotes("Close with the three takeaways. If asked about quality or cost: 59 automated tests pass, CI runs on every push, and the demo costs only a few cents of lab credit, with no personal spending.");
 
 (async () => {
   await pres.writeFile({ fileName: OUT });
