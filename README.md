@@ -95,6 +95,8 @@ Open <http://localhost:4000>. Demo accounts (synthetic data, password `Demo@1234
 | [Testing report](docs/testing-report.md) | Baseline vs final results and defects found |
 | [Limitations and future work](docs/limitations-and-future-work.md) | Honest gaps and the production roadmap |
 | [Evaluation guide](docs/evaluation-guide.md) | Viva answers, trade-offs and the demo script |
+| [Demo-day runbook](docs/demo-day-runbook.md) | Minute-by-minute deployment and demo steps for the lab evaluation |
+| [Lab submission pack](submission/) | Proposal, architecture sheet, 5-page report |
 | [API reference](docs/api.md) · [Database](docs/database.md) | Application reference |
 | [Evidence](docs/evidence/) | Raw outputs from real runs |
 | [Legacy docs](docs/legacy/) | The original project's docs, kept for reference only |
