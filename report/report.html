@@ -106,7 +106,7 @@
   <h1 class="section" id="abstract">Abstract</h1>
   <p>EnterpriseOS is a multi-tenant workforce-management web application that brings employee and department records, attendance, leave approvals, projects, tasks, notifications and an audit trail into one workspace. It was originally built for our Software Engineering course as a Node.js/Express modular monolith backed by PostgreSQL and hosted on Vercel.</p>
   <p>This project re-platforms the same application onto Amazon Web Services (AWS) to apply core cloud-computing concepts to a real system. Two constraints guided every decision: <b>zero personal expenditure</b>, and <b>no change to the application's business logic</b>. The unchanged Express application runs on <b>AWS Lambda</b> behind an <b>Amazon API Gateway HTTP API</b>, through a small, dependency-free adapter we wrote. Secrets are kept in <b>AWS Systems Manager Parameter Store</b>. Leave decisions and task assignments are published as events to <b>Amazon SQS</b> and processed asynchronously by a second Lambda function that sends notifications through <b>Amazon SNS</b>. Failed messages are retried and then moved to a dead-letter queue. <b>Amazon CloudWatch</b> provides structured logs and alarms, and the whole environment is defined in one <b>AWS SAM / CloudFormation</b> template that can be created or deleted with a single command.</p>
-  <p>The implementation is verified by <b>56 automated tests, all passing</b> (21 original and 35 new), template, script and workflow linters with no findings, and a dependency audit with no known vulnerabilities. The new tests also exposed and fixed two pre-existing defects. A cost model estimates about <b>US$0.01–0.03 of AWS credit per demonstration session</b>, and the target AWS account runs on the AWS Free plan (US$120 credits, US$0 spent) with a zero-spend budget alert. At the time of writing the cloud stack is fully implemented and verified locally; deployment to AWS is pending the provider's new-account verification. This report describes the methodology, presents the results and distinguishes clearly between what is implemented, what is verified and what is deployed.</p>
+  <p>The implementation is verified by <b>56 automated tests, all passing</b> (21 original and 35 new), template, script and workflow linters with no findings, and a dependency audit with no known vulnerabilities. The new tests also exposed and fixed two pre-existing defects. A cost model estimates about <b>US$0.01–0.03 of AWS credit per demonstration session</b>, and the target AWS account runs on the AWS Free plan (US$120 credits, US$0 spent) with a zero-spend budget alert. The stack was deployed with a single command to the AWS Academy Cloud Developing sandbox on 26 November 2026 and verified end to end: the public HTTPS endpoint returned healthy responses, and a leave approval was processed asynchronously by the worker Lambda through SQS. This report describes the methodology, presents the results and distinguishes clearly between what is implemented, what is verified and what is deployed.</p>
   <p><b>Keywords:</b> Cloud computing, serverless, AWS Lambda, API Gateway, Amazon SQS, event-driven architecture, infrastructure as code, cost optimisation.</p>
 </section>
 
@@ -208,20 +208,20 @@
     <tr><td>Credits</td><td>US$40 lab budget, US$0 used</td><td>US$120 credits, US$0 spent</td></tr>
     <tr><td>Lifetime</td><td>About 3-hour sessions; all resources deleted when a session ends</td><td>182 days; no charges unless upgraded to a paid plan</td></tr>
     <tr><td>IAM</td><td>Cannot create roles; must use the pre-created <code>LabRole</code></td><td>Full IAM, so least-privilege roles can be created</td></tr>
-    <tr><td>Services</td><td>Lambda, API Gateway, SQS, SNS, CloudWatch, CloudFormation, SSM, S3 permitted; KMS not listed</td><td>Standard services; account verification pending at the time of writing</td></tr>
+    <tr><td>Services</td><td>Lambda, API Gateway, SQS, SNS, CloudWatch, CloudFormation, SSM, S3 permitted; KMS not listed</td><td>Standard services, but the Free plan limits the account to one region (ap-southeast-2)</td></tr>
     <tr><td>Cost guard</td><td>Self-imposed cap: min(US$3, 5% of budget) = US$2.00</td><td>Zero-spend budget alert configured</td></tr>
-    <tr><td>Role in project</td><td>Fallback environment</td><td>Primary deployment target (stays live between demonstrations)</td></tr>
+    <tr><td>Role in project</td><td>Environment used for the verified deployment (26 Nov 2026)</td><td>Long-term target (stays live between demonstrations)</td></tr>
   </table>
   <p>The template supports both: passing <code>LabRole</code> uses the sandbox's fixed role, while leaving it empty makes CloudFormation create tightly scoped roles.</p>
 </section>
 
 <section>
   <h2 id="method-arch">3.3 Proposed System Architecture</h2>
-  <p>Figure 3.1 shows the architecture. The browser reaches the API through API Gateway; the API function serves the unchanged application and publishes events; a worker function processes them asynchronously. Dashed blue lines mark components that are implemented and tested; grey dotted items are future scope.</p>
+  <p>Figure 3.1 shows the architecture. The browser reaches the API through API Gateway; the API function serves the unchanged application and publishes events; a worker function processes them asynchronously. Solid blue lines mark components that are deployed and verified on AWS; the dashed Function URL path is an implemented fallback that was not deployed; grey dotted items are future scope.</p>
   <figure>
     <svg viewBox="0 0 760 330" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="EnterpriseOS AWS architecture">
       <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2B6CB0"/></marker></defs>
-      <style>.b{fill:#E8F1FF;stroke:#2B6CB0;stroke-width:1.4}.u{fill:#fff;stroke:#232F3E;stroke-width:1.4}.f{fill:#F2F2F2;stroke:#8A8A8A;stroke-width:1.2;stroke-dasharray:4 3}.t{font-size:12px;font-weight:bold;fill:#1A2433}.s{font-size:10.5px;fill:#333}.l{stroke:#2B6CB0;stroke-width:1.6;stroke-dasharray:6 4;fill:none;marker-end:url(#ar)}.lf{stroke:#8A8A8A;stroke-width:1.2;stroke-dasharray:2 4;fill:none}.c{font-size:9.5px;fill:#555;font-style:italic}</style>
+      <style>.b{fill:#E8F1FF;stroke:#2B6CB0;stroke-width:1.4}.u{fill:#fff;stroke:#232F3E;stroke-width:1.4}.f{fill:#F2F2F2;stroke:#8A8A8A;stroke-width:1.2;stroke-dasharray:4 3}.t{font-size:12px;font-weight:bold;fill:#1A2433}.s{font-size:10.5px;fill:#333}.l{stroke:#2B6CB0;stroke-width:1.6;fill:none;marker-end:url(#ar)}.ld{stroke:#2B6CB0;stroke-width:1.4;stroke-dasharray:6 4;fill:none;marker-end:url(#ar)}.lf{stroke:#8A8A8A;stroke-width:1.2;stroke-dasharray:2 4;fill:none}.c{font-size:9.5px;fill:#555;font-style:italic}</style>
       <rect class="u" x="10" y="130" width="100" height="56" rx="6"/><text class="t" x="60" y="154" text-anchor="middle">Browser</text><text class="s" x="60" y="170" text-anchor="middle">3 user roles</text>
       <rect class="b" x="150" y="130" width="120" height="56" rx="6"/><text class="t" x="210" y="152" text-anchor="middle">API Gateway</text><text class="s" x="210" y="168" text-anchor="middle">HTTP API, throttled</text><text class="s" x="210" y="180" text-anchor="middle">10 req/s, burst 20</text>
       <rect class="b" x="150" y="230" width="120" height="50" rx="6"/><text class="t" x="210" y="251" text-anchor="middle">Function URL</text><text class="s" x="210" y="266" text-anchor="middle">fallback entry</text>
@@ -234,9 +234,9 @@
       <rect class="b" x="640" y="25" width="110" height="50" rx="6"/><text class="t" x="695" y="46" text-anchor="middle">SNS topic</text><text class="s" x="695" y="61" text-anchor="middle">notifications</text>
       <rect class="f" x="640" y="235" width="110" height="50" rx="6"/><text class="t" x="695" y="256" text-anchor="middle" fill="#666">Managed DB</text><text class="s" x="695" y="271" text-anchor="middle">future scope</text>
       <path class="l" d="M110 158 H148"/>
-      <path class="l" d="M60 186 V255 H148"/>
+      <path class="ld" d="M60 186 V255 H148"/>
       <path class="l" d="M270 158 H308"/>
-      <path class="l" d="M270 255 H290 V180 H308"/>
+      <path class="ld" d="M270 255 H290 V180 H308"/>
       <path class="l" d="M377 125 V77"/>
       <path class="l" d="M377 191 V233"/>
       <path class="l" d="M445 158 H483"/>
@@ -247,8 +247,8 @@
       <text class="c" x="455" y="150">events</text>
       <text class="c" x="385" y="105">cold start</text>
       <text class="c" x="550" y="214">redrive</text>
-      <line x1="20" y1="318" x2="50" y2="318" class="l" style="marker-end:none"/><text class="s" x="56" y="321">implemented and tested (not yet deployed)</text>
-      <line x1="320" y1="318" x2="350" y2="318" class="lf"/><text class="s" x="356" y="321">proposed future work</text>
+      <line x1="20" y1="318" x2="50" y2="318" class="l" style="marker-end:none"/><text class="s" x="56" y="321">deployed and verified on AWS (26 Nov 2026)</text>
+      <line x1="285" y1="318" x2="315" y2="318" class="ld" style="marker-end:none"/><text class="s" x="321" y="321">implemented, not deployed (fallback)</text><line x1="530" y1="318" x2="560" y2="318" class="lf"/><text class="s" x="566" y="321">proposed future work</text>
     </svg>
     <figcaption>Figure 3.1: AWS architecture of EnterpriseOS (defined in <code>infrastructure/template.yaml</code>)</figcaption>
   </figure>
@@ -418,15 +418,16 @@
 
   <h2 id="results-deploy">4.6 Deployment Status</h2>
   <div class="note">
-    <p><b>Status at the time of writing:</b> every AWS component in Figure 3.1 is <b>implemented and verified locally</b>, and the deployment is fully scripted. Deployment to the team's AWS Free plan account is <b>pending AWS's new-account verification</b>, which can take up to 48 hours. No AWS resource has been created yet, and no credit has been used.</p>
+    <p><b>Deployed and verified on 26 November 2026</b> in the AWS Academy Cloud Developing sandbox (us-east-1), from AWS CloudShell with <code>scripts/aws/deploy.sh</code>: all 14 pre-flight checks passed, the CloudFormation stack reached <code>CREATE_COMPLETE</code>, <code>/health</code> returned HTTP 200 from outside AWS, unauthenticated API calls were refused (HTTP 401), and the security headers were present.</p>
   </div>
+  <figure><img src="figures/aws-worker-log.png" alt="CloudWatch log of the worker Lambda"><figcaption>Figure 4.7: CloudWatch log of the worker Lambda, started by SQS after a leave approval on the live deployment (account ID removed)</figcaption></figure>
   <table>
     <thead><tr><th>Status</th><th>Components</th></tr></thead>
-    <tr><td>Verified</td><td>Application features, 56 tests, linters, audit, secret scan, package smoke test, AWS environment and budgets</td></tr>
-    <tr><td>Ready to deploy</td><td>Lambda (API and worker), API Gateway, SQS and dead-letter queue, SNS, Parameter Store, CloudWatch alarms</td></tr>
+    <tr><td>Deployed and verified</td><td>Lambda (API and worker), API Gateway HTTP API, SQS queue and dead-letter queue, SNS topics, Parameter Store SecureString, CloudWatch logs and 4 alarms, CloudFormation/SAM stack</td></tr>
+    <tr><td>Found during the real deploy</td><td>Two template/script defects that only AWS could reveal (an empty SAM parameter and a two-queue SQS policy statement) were fixed, re-tested and redeployed successfully</td></tr>
     <tr><td>Designed only</td><td>Managed PostgreSQL, CloudFront and WAF, GitHub OIDC deployments, X-Ray tracing</td></tr>
   </table>
-  <p>Once deployed, the public HTTPS address, CloudWatch log entries for a processed event and SQS metrics will be recorded as evidence.</p>
+  <p>The sandbox deletes all resources when its session ends, so the identical stack is re-created in about ten minutes for each demonstration.</p>
 </section>
 
 <!-- ================= CONCLUSION ================= -->
@@ -441,7 +442,7 @@
     <li>The login rate limit is kept per container rather than globally.</li>
     <li>In the AWS Academy sandbox, functions must use the broad <code>LabRole</code>.</li>
     <li>The external PostgreSQL mode was not tested against a live database.</li>
-    <li>Deployment is pending AWS account verification.</li>
+    <li>The AWS Academy sandbox deletes the stack after each session, so it is re-created for every demonstration.</li>
   </ul>
   <h2>5.3 Future Scope</h2>
   <ul>

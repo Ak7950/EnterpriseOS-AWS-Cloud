@@ -71,7 +71,7 @@ function badge(slide, x, y, label, fill = C.accent1, color = C.text2) {
 function text(slide, t, opts) {
   slide.addText(t, { margin: 0, isTextBox: true, color: C.text1, fontSize: 14, valign: "top", objectName: nm("text"), ...opts });
 }
-function arrow(slide, x1, y1, x2, y2, dashed = true, color = C.accent2) {
+function arrow(slide, x1, y1, x2, y2, dashed = false, color = C.accent2) {
   slide.addShape(pres.shapes.LINE, {
     x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1),
     flipH: x2 < x1, flipV: y2 < y1,
@@ -105,7 +105,7 @@ s.addText("A cost-safe serverless and event-driven cloud architecture for workfo
 text(s, "Avik Khetarpal  ·  Humza Ali Choudhri  ·  Shashwat Tewari", { x: 0.6, y: 3.95, w: 8.8, h: 0.35, fontSize: 16, color: C.background1 });
 text(s, "UCS553 Cloud Computing  ·  Group 4  ·  Thapar Institute of Engineering and Technology", { x: 0.6, y: 4.35, w: 8.8, h: 0.3, fontSize: 12, color: C.accent4 });
 s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 0.55, w: 3.6, h: 0.42, rectRadius: 0.2, fill: { color: C.accent1 }, line: { type: "none" }, objectName: "status-pill" });
-text(s, "Implemented & verified · deployment pending", { x: 0.6, y: 0.55, w: 3.6, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
+text(s, "Deployed & verified on AWS · 26 Nov 2026", { x: 0.6, y: 0.55, w: 3.6, h: 0.42, fontSize: 12, bold: true, color: C.text2, align: "center", valign: "middle" });
 s.addNotes("Introduce the team and the one-line idea: we took our Software Engineering project, EnterpriseOS, and re-platformed it onto AWS using serverless and event-driven services, with a strict rule of zero personal cost. Be clear from the start: everything is implemented and tested, and the AWS deployment is done in the lab session on demonstration day.");
 
 // ===================== 2. Problem & constraints =====================
@@ -135,7 +135,7 @@ s.addNotes("The cloud question: how do you move an existing app to AWS so it dem
 
 // ===================== 5. Architecture =====================
 pres.addSection({ title: "Architecture" });
-s = content("Architecture", "Target architecture on AWS");
+s = content("Architecture", "Architecture on AWS");
 node(s, 0.5, 2.45, 1.3, 0.8, "Browser", "3 user roles", "user");
 node(s, 2.1, 2.45, 1.55, 0.8, "API Gateway", "HTTP API, throttled");
 node(s, 2.1, 3.55, 1.55, 0.8, "Function URL", "fallback entry");
@@ -148,9 +148,9 @@ node(s, 7.55, 2.45, 1.55, 0.8, "Lambda: worker", "async processing");
 node(s, 7.55, 1.35, 1.55, 0.8, "SNS topic", "notifications");
 node(s, 7.55, 3.55, 1.55, 0.8, "RDS / DynamoDB", "future", "future");
 arrow(s, 1.8, 2.85, 2.1, 2.85);
-arrow(s, 1.15, 3.25, 2.1, 3.95);
+arrow(s, 1.15, 3.25, 2.1, 3.95, true);
 arrow(s, 3.65, 2.85, 3.9, 2.85);
-arrow(s, 3.65, 3.75, 4.1, 3.25);
+arrow(s, 3.65, 3.75, 4.1, 3.25, true);
 arrow(s, 4.675, 2.45, 4.675, 2.15);
 arrow(s, 4.675, 3.25, 4.675, 3.55);
 arrow(s, 5.45, 2.85, 5.75, 2.85);
@@ -158,12 +158,14 @@ arrow(s, 6.525, 3.25, 6.525, 3.55);
 arrow(s, 7.3, 2.85, 7.55, 2.85);
 arrow(s, 8.325, 2.45, 8.325, 2.15);
 // legend
-s.addShape(pres.shapes.LINE, { x: 0.5, y: 4.75, w: 0.45, h: 0, line: { color: C.accent2, width: 1.75, dashType: "dash" }, objectName: "legend-impl" });
-text(s, "Implemented & tested, not yet deployed", { x: 1.05, y: 4.62, w: 3.2, h: 0.28, fontSize: 11, color: C.text1, valign: "middle" });
-s.addShape(pres.shapes.RECTANGLE, { x: 4.4, y: 4.64, w: 0.45, h: 0.22, fill: { color: C.background2 }, line: { color: C.accent4, width: 1, dashType: "dash" }, objectName: "legend-future" });
-text(s, "Designed only (future)", { x: 4.95, y: 4.62, w: 2.2, h: 0.28, fontSize: 11, color: C.text1, valign: "middle" });
-text(s, "Solid lines will mark deployed links", { x: 7.1, y: 4.62, w: 2.4, h: 0.28, fontSize: 11, color: C.accent4, valign: "middle", italic: true });
-s.addNotes("Left to right: the browser calls API Gateway, which forwards to the API Lambda running our unchanged Express app. On cold start it reads secrets from Parameter Store. When a manager approves leave or assigns a task, an event goes to SQS; a worker Lambda processes it and publishes to SNS; failures retry and then land in the dead-letter queue. CloudWatch collects logs and alarms. Dashed lines mean implemented and tested but not yet deployed. Key idea: Lambda receives JSON events, not HTTP connections, so a small dependency-free bridge starts Express on a private loopback port and replays each event as a real HTTP request. Every security check behaves exactly as it does locally, at about 1 ms overhead.");
+s.addShape(pres.shapes.LINE, { x: 0.5, y: 4.75, w: 0.45, h: 0, line: { color: C.accent2, width: 1.75 }, objectName: "legend-impl" });
+text(s, "Deployed and verified", { x: 1.05, y: 4.62, w: 1.9, h: 0.28, fontSize: 11, color: C.text1, valign: "middle" });
+s.addShape(pres.shapes.LINE, { x: 3.0, y: 4.75, w: 0.45, h: 0, line: { color: C.accent2, width: 1.75, dashType: "dash" }, objectName: "legend-fallback" });
+text(s, "Fallback, not deployed", { x: 3.55, y: 4.62, w: 1.9, h: 0.28, fontSize: 11, color: C.text1, valign: "middle" });
+s.addShape(pres.shapes.RECTANGLE, { x: 5.5, y: 4.64, w: 0.45, h: 0.22, fill: { color: C.background2 }, line: { color: C.accent4, width: 1, dashType: "dash" }, objectName: "legend-future" });
+text(s, "Future", { x: 6.05, y: 4.62, w: 0.9, h: 0.28, fontSize: 11, color: C.text1, valign: "middle" });
+text(s, "Live run: 26 Nov 2026, us-east-1", { x: 7.0, y: 4.62, w: 2.5, h: 0.28, fontSize: 11, color: C.accent4, valign: "middle", italic: true });
+s.addNotes("Left to right: the browser calls API Gateway, which forwards to the API Lambda running our unchanged Express app. On cold start it reads secrets from Parameter Store. When a manager approves leave or assigns a task, an event goes to SQS; a worker Lambda processes it and publishes to SNS; failures retry and then land in the dead-letter queue. CloudWatch collects logs and alarms. Solid lines are deployed and verified on AWS (26 November, Academy sandbox); the grey box is future scope. Key idea: Lambda receives JSON events, not HTTP connections, so a small dependency-free bridge starts Express on a private loopback port and replays each event as a real HTTP request. Every security check behaves exactly as it does locally, at about 1 ms overhead.");
 
 // ===================== 8. Event-driven pipeline =====================
 s = content("Architecture", "Event-driven processing");
@@ -267,7 +269,7 @@ s.addNotes("21 original tests plus 35 new ones. The built deployment package is 
 s = content("Results", "Status and future scope");
 const cols = [
   ["Verified", C.accent3, ["AWS services and budgets", "56 tests, linters, audit", "Package smoke test"]],
-  ["Ready to deploy", C.accent2, ["Lambda, API Gateway, SQS, SNS", "SSM secrets, CloudWatch alarms", "One command, about 10 minutes"]],
+  ["Deployed", C.accent2, ["Lambda, API Gateway, SQS, SNS", "SSM secret, 4 alarms OK", "Stack CREATE_COMPLETE"]],
   ["Future scope", C.accent4, ["Managed PostgreSQL (RDS)", "CloudFront, WAF, custom domain", "Cognito, X-Ray, OIDC deploys"]],
 ];
 cols.forEach(([h, col, items], i) => {
@@ -278,10 +280,10 @@ cols.forEach(([h, col, items], i) => {
   text(s, items.map((t, k) => ({ text: t, options: { bullet: true, breakLine: k < items.length - 1 } })), { x: x + 0.2, y: 2.05, w: 2.5, h: 1.6, fontSize: 13, paraSpaceAfter: 6 });
 });
 text(s, [
-  { text: "Deployment: ", options: { bold: true, color: C.accent5 } },
-  { text: "waiting only on AWS's new-account verification for our Free plan account. Then: deploy from CloudShell → live HTTPS link → logs and queue metrics as evidence. Limitations: demo data lives per Lambda container; PostgreSQL mode not yet exercised." },
+  { text: "Live deployment (26 Nov): ", options: { bold: true, color: C.accent5 } },
+  { text: "one command from CloudShell → /health 200 from outside AWS → a leave approval started the worker Lambda through SQS (CloudWatch log). The sandbox deletes the stack after each session, so it is re-created for every demo." },
 ], { x: 0.5, y: 4.0, w: 9.0, h: 0.95, fontSize: 13 });
-s.addNotes("Be explicit with the examiner about what is deployed. At the time of writing, nothing runs on AWS yet because the new account is still being verified by AWS. Everything is implemented and verified, and the deployment path is scripted. If we deploy during the demo, show the live link, the worker log entry for an approved leave, and the SQS metrics, then run the cleanup script.");
+s.addNotes("Be explicit with the examiner about what is deployed. It was deployed and verified on 26 November in the AWS Academy sandbox; because the sandbox deletes resources after each session, it is re-created before the demo with one command. Everything is implemented and verified, and the deployment path is scripted. If we deploy during the demo, show the live link, the worker log entry for an approved leave, and the SQS metrics, then run the cleanup script.");
 
 // ===================== 15. Closing =====================
 pres.addSection({ title: "Close" });

@@ -82,9 +82,8 @@
   <figure><img src="../../report/figures/ui-leaves.png" alt="Leave center"><figcaption>Figure 5: Pending leave request</figcaption></figure>
   <figure><img src="../../report/figures/ui-audit.png" alt="Audit trail"><figcaption>Figure 6: Audit trail after approval (also publishes an event)</figcaption></figure>
 </div>
-<!--DEPLOY_EVIDENCE-->
 
-<h2 class="p-break">Testing and Verification</h2>
+<h2>Testing and Verification</h2>
 <table>
   <thead><tr><th>Check</th><th style="width:30%">Result</th></tr></thead>
   <tr><td>Automated tests (21 original + 35 new, incl. Lambda end-to-end)</td><td><b>56 / 56 passed</b></td></tr>
@@ -97,6 +96,7 @@
 </table>
 <h2>Deployment Status</h2>
 <p><!--DEPLOY_STATUS--></p>
+<!--DEPLOY_EVIDENCE-->
 
 <h1 class="section">Conclusion and Future Scope</h1>
 <p>EnterpriseOS now runs on a serverless, event-driven AWS architecture with its business logic unchanged and zero personal cost. The project applies pay-per-use compute, a managed HTTPS front door, reliable messaging with a dead-letter queue, encrypted secrets, least-privilege IAM, monitoring and infrastructure as code, and backs every claim with tests and evidence.</p>

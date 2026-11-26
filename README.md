@@ -5,14 +5,12 @@ system. The unchanged Express application runs on **AWS Lambda** behind an **API
 with **SQS → Lambda → SNS** event processing, **SSM Parameter Store** secrets, **CloudWatch** logs and
 alarms, and a single **AWS SAM / CloudFormation** template.
 
-> ### Deployment status — 2026-11-25
-> **Implemented Locally — not deployed to AWS.** All cloud code is written and covered by 56 passing
-> tests, the template passes `cfn-lint`, and the built Lambda package passes a smoke test. Deployment
-> target is the **AWS Academy Cloud Developing Sandbox**. Its service list has been verified (Lambda,
-> API Gateway, SQS, SNS, CloudWatch, CloudFormation, SSM, S3 and CloudShell are all permitted), but
-> the lab budget is *Used $0 of $40*, so the Academy cap is **US$2.00**
-> ([environment audit](docs/aws-academy-environment-audit.md)). **No AWS resource exists yet.**
-> Personal spending: **₹0**.
+> ### Deployment status — 26 Nov 2026
+> **Implemented and Deployed** to the AWS Academy Cloud Developing Sandbox (us-east-1) with one command:
+> stack `CREATE_COMPLETE`, `/health` 200 from outside AWS, a leave approval processed by the worker Lambda
+> through SQS, 4 CloudWatch alarms OK ([evidence](docs/evidence/aws-deployment-2026-11-26.txt)). The sandbox
+> deletes resources when its session ends, so the stack is re-created for each demo
+> ([runbook](docs/demo-day-runbook.md)). Personal spending: **₹0**.
 
 This repository is separate from the original Software Engineering project. It has its own Git
 history and does not reference the original repository, Vercel deployment or database.
@@ -54,7 +52,7 @@ flowchart LR
   W -.-> C
 ```
 
-Dashed lines mean implemented but not deployed. The full diagrams, with a legend that separates
+The stack has been deployed and verified (see `docs/evidence/aws-deployment-2026-11-26.txt`). The full diagrams, with a legend that separates
 deployed, implemented and proposed components, are in [`docs/architecture.md`](docs/architecture.md).
 
 ## Quick start (local, no AWS needed)

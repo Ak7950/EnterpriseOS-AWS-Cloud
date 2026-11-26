@@ -12,7 +12,10 @@ Only genuine output from commands that were actually run is stored here. Nothing
 
 ## AWS evidence
 
-**None yet. No AWS resource has been deployed.**
+| File | What it shows | Captured |
+|---|---|---|
+| `aws-deployment-2026-11-26.txt` | Stack outputs, external `/health` checks, security headers, 401 on unauthenticated API, the two defects found and fixed during the first real deploy | 2026-11-26, AWS Academy sandbox, us-east-1 |
+| `../../report/figures/aws-worker-log.png` | CloudWatch log of the worker Lambda started by SQS after a leave approval on the live site (account ID cropped out) | 2026-11-26 |
 
 After a verified deployment, add screenshots or CLI output here as `aws-*.png` / `aws-*.txt`.
 Redact the 12-digit account ID, ARNs, API IDs, Function URL IDs and any e-mail addresses

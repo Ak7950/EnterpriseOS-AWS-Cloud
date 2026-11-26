@@ -1,11 +1,9 @@
 # Architecture
 
-> **Deployment status (2026-11-25): nothing in this repository has been deployed to AWS yet.**
-> Every AWS component below is *Implemented Locally*: the code exists, is covered by
-> automated tests, and the CloudFormation/SAM template passes `cfn-lint`. It becomes
-> *Implemented and Deployed* only after the AWS Academy checks in
-> [`aws-academy-environment-audit.md`](aws-academy-environment-audit.md) pass and evidence is
-> added to [`evidence/`](evidence/).
+> **Deployment status (26 Nov 2026): deployed and verified** in the AWS Academy Cloud Developing
+> Sandbox (us-east-1): stack `CREATE_COMPLETE`, `/health` 200, and a leave approval processed by the
+> worker Lambda via SQS. Evidence: [`evidence/aws-deployment-2026-11-26.txt`](evidence/aws-deployment-2026-11-26.txt).
+> The sandbox deletes the stack when its session ends; it is re-created for each demonstration.
 
 ## 1. Starting point (original EnterpriseOS)
 
@@ -36,7 +34,7 @@ flowchart LR
   T -->|SQS-shaped records| W[Event worker<br/>aws/lambda/event-worker.js]
 ```
 
-## 3. Diagram B — AWS target architecture (implemented, **not deployed**)
+## 3. Diagram B — AWS architecture (deployed and verified on 26 Nov 2026)
 
 ```mermaid
 flowchart LR
@@ -62,18 +60,18 @@ flowchart LR
     DDB[(DynamoDB rate-limit store)]
   end
 
-  U -.->|HTTPS| APIGW
+  U -->|HTTPS| APIGW
   U -.->|HTTPS, if API GW unavailable| FURL
-  APIGW -.->|AWS_PROXY payload v2| API
+  APIGW -->|AWS_PROXY payload v2| API
   FURL -.-> API
-  API -.->|cold start: GetParametersByPath| SSM
-  API -.->|SendMessage LEAVE_DECIDED / TASK_ASSIGNED| SQS
-  SQS -.->|event source mapping| WRK
-  SQS -.->|redrive| DLQ
-  WRK -.->|Publish PII-free summary| SNS
-  API -.-> CWL
-  WRK -.-> CWL
-  CWA -.-> OPS
+  API -->|cold start: GetParametersByPath| SSM
+  API -->|SendMessage LEAVE_DECIDED / TASK_ASSIGNED| SQS
+  SQS -->|event source mapping| WRK
+  SQS -->|redrive| DLQ
+  WRK -->|Publish PII-free summary| SNS
+  API --> CWL
+  WRK --> CWL
+  CWA --> OPS
   API -.->|DatabaseMode=postgresql| PG
   U -.-> CF
   API -.-> DDB
@@ -85,10 +83,7 @@ flowchart LR
   linkStyle 12,13,14 stroke:#9e9e9e,stroke-dasharray:2 6;
 ```
 
-**Legend.** Solid line = deployed and verified (none yet). Blue node with dashed line =
-implemented and tested locally, ready to deploy. Grey dotted node/line = proposed future
-work (designed only). When a deployment is verified, the corresponding lines will be
-changed to solid and the evidence linked.
+**Legend.** Solid line = deployed and verified on AWS (26 Nov 2026, AWS Academy sandbox). Blue node = deployed component. Dashed blue line = implemented fallback (Function URL), not deployed. Grey dotted node/line = proposed future work (designed only).
 
 ## 4. Request flow (HTTP)
 
