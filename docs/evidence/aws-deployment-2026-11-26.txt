@@ -35,3 +35,9 @@ AppUrl: https://zakyhf7a55.execute-api.us-east-1.amazonaws.com/
 {"status":"ok","database":"up","databaseMode":"ephemeral-in-memory","version":"00a7cc8"}  -> HTTP 200
 GET / -> HTTP 200
 GET /api/dashboard without token -> HTTP 401
+Event flow on the hardened stack: leave approved on the live site; worker Lambda log stream started 2026-11-26T23:18:14Z
+(INIT_START nodejs:24, INFO domain-event log line, Duration ~1.6 s) - triggered by SQS. 4 CloudWatch alarms OK.
+
+## Cleanup - same session
+STAGE=dev DELETE_PARAMETERS=yes bash scripts/aws/cleanup.sh -> stack deleted, /enterpriseos/dev/JWT_SECRET deleted,
+'Cleanup verified: no EnterpriseOS resources remain for enterpriseos-dev.' (Shared SAM artifact bucket left in place by design.)
