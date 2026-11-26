@@ -33,6 +33,18 @@ info "Packaging Lambda code"
 
 confirm "About to deploy stack ${STACK_NAME} to ${AWS_REGION} (front door ${FRONT_DOOR}, database ${DATABASE_MODE})." "deploy"
 
+# SAM rejects empty values ("Key="), so optional parameters are only passed when
+# set; the template defaults apply otherwise (e.g. empty LambdaRoleArn = create roles).
+overrides=(
+  "StageName=${STAGE}"
+  "AppVersion=${APP_VERSION}"
+  "FrontDoor=${FRONT_DOOR}"
+  "DatabaseMode=${DATABASE_MODE}"
+  "SsmParameterPath=${SSM_PARAMETER_PATH}"
+)
+[[ -n "${LAMBDA_ROLE_ARN}" ]] && overrides+=("LambdaRoleArn=${LAMBDA_ROLE_ARN}")
+[[ -n "${ALERT_EMAIL:-}" ]] && overrides+=("AlertEmail=${ALERT_EMAIL}")
+
 changeset_flag="--confirm-changeset"
 [[ "${NONINTERACTIVE:-}" == "yes" ]] && changeset_flag="--no-confirm-changeset"
 
@@ -45,14 +57,7 @@ sam deploy \
   --no-fail-on-empty-changeset \
   "${changeset_flag}" \
   --tags "Project=EnterpriseOS" "Stage=${STAGE}" "Owner=student-academy-lab" \
-  --parameter-overrides \
-    "StageName=${STAGE}" \
-    "AppVersion=${APP_VERSION}" \
-    "LambdaRoleArn=${LAMBDA_ROLE_ARN}" \
-    "FrontDoor=${FRONT_DOOR}" \
-    "DatabaseMode=${DATABASE_MODE}" \
-    "SsmParameterPath=${SSM_PARAMETER_PATH}" \
-    "AlertEmail=${ALERT_EMAIL:-}"
+  --parameter-overrides "${overrides[@]}"
 
 app_url="$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --region "${AWS_REGION}" --query "Stacks[0].Outputs[?OutputKey=='AppUrl'].OutputValue" --output text)"
 info "Application URL: ${app_url}"
